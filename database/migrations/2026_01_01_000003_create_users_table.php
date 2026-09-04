@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('email', 150)->unique();
             $table->string('password');
             $table->foreignUuid('role_id')->constrained('role')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreignUuid('divisi_id')->constrained('divisi')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreignUuid('divisi_id')->nullable()->constrained('divisi')->onUpdate('cascade')->onDelete('restrict');
             $table->foreignUuid('atasan_id')->nullable()->constrained('users')->onUpdate('cascade')->onDelete('set null');
             $table->string('jabatan', 100)->nullable();
             $table->boolean('is_active')->default(true);
