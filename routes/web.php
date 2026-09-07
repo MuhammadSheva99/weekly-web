@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\DivisiRoleController;
 use App\Http\Controllers\Hrd\DashboardController as HrdDashboardController;
 use App\Http\Controllers\Hrd\MonitoringPicController;
+use App\Http\Controllers\Hrd\UnderperformController;
+use App\Http\Controllers\Hrd\TrendPerformanceController;
+
 
 
 
@@ -33,12 +36,17 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/divisi-role', [DivisiRoleController::class, 'index'])->name('divisi-role.index');
     Route::post('/divisi-role', [DivisiRoleController::class, 'store'])->name('divisi-role.store');
+    Route::get('/divisi-role/{divisi}', [DivisiRoleController::class, 'show'])->name('divisi-role.show');
+    Route::put('/divisi-role/{divisi}', [DivisiRoleController::class, 'update'])->name('divisi-role.update');
+    Route::delete('/divisi-role/{divisi}', [DivisiRoleController::class, 'destroy'])->name('divisi-role.destroy');
 });
 
 Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(function () {
     Route::get('/dashboard', [HrdDashboardController::class, 'index'])->name('dashboard');
     
     Route::get('/monitoring-pic', [MonitoringPicController::class, 'index'])->name('monitoring-pic.index');
+    Route::get('/underperform', [UnderperformController::class, 'index'])->name('underperform.index');
+    Route::get('/trend-performance', [TrendPerformanceController::class, 'index'])->name('trend-performance.index');
 });
 
 require __DIR__.'/auth.php';

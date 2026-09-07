@@ -33,10 +33,11 @@
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Daftar Divisi</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
         @forelse ($divisiList as $divisi)
-            <div class="bg-white border border-gray-200 rounded-xl p-5">
+            <a href="{{ route('admin.divisi-role.show', $divisi) }}"
+            class="block bg-white border border-gray-200 rounded-xl p-5 hover:border-orange-400 hover:shadow-sm transition">
                 <p class="font-semibold text-gray-900">{{ $divisi->nama }}</p>
                 <p class="text-sm text-gray-400 mt-1">{{ $divisi->users_count }} anggota · {{ $divisi->head_count }} Head</p>
-            </div>
+            </a>
         @empty
             <p class="text-gray-400 col-span-3">Belum ada divisi.</p>
         @endforelse

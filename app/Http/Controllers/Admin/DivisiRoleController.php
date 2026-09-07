@@ -43,4 +43,42 @@ class DivisiRoleController extends Controller
 
         return back()->with('status', 'Divisi berhasil ditambahkan.');
     }
+
+    public function show(Divisi $divisi)
+    {
+        $divisi->load(['users.role', 'users.atasan.divisi']);
+
+        $atasanList = $divisi->users
+            ->pluck('atasan')
+            ->filter()
+            ->unique('id')
+            ->values();
+
+        return view('admin.divisi-role.show', [
+            'divisi' => $divisi,
+            'atasanList' => $atasanList,
+        ]);
+    }
+
+    public function update(Request $request, Divisi $divisi)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:divisi,nama,'.$divisi->id,
+        ]);
+
+        $divisi->update(['nama' => $request->nama]);
+
+        return back()->with('status', 'Divisi berhasil diperbarui.');
+    }
+
+    public function destroy(Divisi $divisi)
+    {
+        if ($divisi->users()->exists()) {
+            return back()->with('error', 'Divisi tidak bisa dihapus karena masih punya anggota. Pindahkan dulu anggotanya ke divisi lain.');
+        }
+
+        $divisi->delete();
+
+        return redirect()->route('admin.divisi-role.index')->with('status', 'Divisi berhasil dihapus.');
+    }
 }

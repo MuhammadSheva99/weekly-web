@@ -20,8 +20,8 @@
                     $menus = [
                         ['label' => 'Dashboard', 'route' => 'hrd.dashboard'],
                         ['label' => 'Monitoring PIC', 'route' => 'hrd.monitoring-pic.index'],
-                        ['label' => 'Underperform & Alert', 'route' => null],
-                        ['label' => 'Trend Performance', 'route' => null],
+                        ['label' => 'Underperform & Alert', 'route' => 'hrd.underperform.index'],
+                        ['label' => 'Trend Performance', 'route' => 'hrd.trend-performance.index'],
                         ['label' => 'Report & Export', 'route' => null],
                         ['label' => 'Notifikasi', 'route' => null],
                         ['label' => 'Cuti', 'route' => null],
