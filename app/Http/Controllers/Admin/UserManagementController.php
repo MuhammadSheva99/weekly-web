@@ -37,18 +37,19 @@ class UserManagementController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:150',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
             'role_id' => 'required|exists:role,id',
             'divisi_id' => 'nullable|exists:divisi,id',
             'atasan_id' => 'nullable|exists:users,id',
             'jabatan' => 'nullable|string|max:100',
         ]);
 
-        $data['password'] = Hash::make('password123');
+        $data['password'] = Hash::make($data['password']);
         $data['is_active'] = true;
 
         User::create($data);
 
-        return back()->with('status', 'User berhasil ditambahkan. Password default: password123');
+        return back()->with('status', 'User berhasil ditambahkan.');
     }
 
     public function update(Request $request, User $user)
@@ -56,10 +57,17 @@ class UserManagementController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:150',
             'email' => 'required|email|unique:users,email,'.$user->id,
+            'password' => 'nullable|string|min:8',
             'role_id' => 'required|exists:role,id',
             'divisi_id' => 'nullable|exists:divisi,id',
             'atasan_id' => 'nullable|exists:users,id',
         ]);
+
+        if (! empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
 
         $user->update($data);
 

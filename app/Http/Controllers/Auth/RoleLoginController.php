@@ -73,7 +73,7 @@ class RoleLoginController extends Controller
     {
         return match ($roleName) {
             'Admin' => route('admin.users.index'),
-            'HRD' => '/hrd/dashboard',
+            'HRD' => route('hrd.dashboard'),
             'Management' => '/management/dashboard',
             'Atasan' => '/atasan/dashboard',
             default => '/dashboard', // Karyawan

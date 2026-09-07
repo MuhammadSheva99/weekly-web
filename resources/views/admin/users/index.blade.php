@@ -39,6 +39,12 @@
             </div>
 
             <div>
+                <label class="block text-sm text-gray-600 mb-1">Password</label>
+                <input type="password" name="password" placeholder="Minimal 8 karakter" required minlength="8"
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+            </div>
+
+            <div>
                 <label class="block text-sm text-gray-600 mb-1">Role</label>
                 <select name="role_id" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
                     <option value="">Pilih Role</option>
@@ -129,6 +135,7 @@
                                 @csrf @method('PUT')
                                 <input type="text" name="nama" value="{{ $user->nama }}" required class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                 <input type="email" name="email" value="{{ $user->email }}" required class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <input type="password" name="password" placeholder="Kosongkan jika tidak ganti password" minlength="8" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                 <select name="role_id" required class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                     @foreach ($roleList as $role)
                                         <option value="{{ $role->id }}" @selected($user->role_id === $role->id)>{{ $role->nama }}</option>
