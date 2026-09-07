@@ -13,7 +13,7 @@ class DivisiSeeder extends Seeder
         'Marketing Many Platform', 'HR-GA', 'Creative Design', 'Content Creator TikTok', 'Admin Purchasing',
         'Content Creator', 'Kepala Gudang', 'Telesales', 'Content Creator Outlet', 'AI Support', 
         'Head Purchasing', 'Asisten Purchasing', 'Admin Stock Warehouse', 'Product Executive Outlet', 
-        'Admin Sales'];
+        'Admin Sales', 'Asset Management'];
 
         foreach ($divisi as $nama) {
             Divisi::firstOrCreate(['nama' => $nama]);

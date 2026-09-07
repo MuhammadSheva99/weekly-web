@@ -1,0 +1,290 @@
+[
+    {
+        "nama": "Iltidas",
+        "email": "tanyaidaz@gmail.com",
+        "divisi": "",
+        "jabatan": "Owner",
+        "role": "Management",
+        "atasan": null
+    },
+    {
+        "nama": "Herman Susilo",
+        "email": "herman2009@yahoo.com",
+        "divisi": "",
+        "jabatan": "Owner",
+        "role": "Management",
+        "atasan": null
+    },
+    {
+        "nama": "Dyah Ayu Pitaloka",
+        "email": "dyahayupitaloka93@gmail.com",
+        "divisi": "",
+        "jabatan": "Supervisor",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Rina Sari",
+        "email": "rina@perusahaan.com",
+        "divisi": "Marketing",
+        "jabatan": "Social Media Specialist",
+        "role": "Karyawan",
+        "atasan": "Andi Wijaya"
+    },
+    {
+        "nama": "Eko Prasetyo",
+        "email": "eko@perusahaan.com",
+        "divisi": "IT",
+        "jabatan": "IT Support",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Dewi Lestari",
+        "email": "dewi@perusahaan.com",
+        "divisi": "HRD",
+        "jabatan": "HR Generalist",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Budi Santoso",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Siti Aminah",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Executive",
+        "role": "Karyawan",
+        "atasan": "Budi Santoso"
+    },
+    {
+        "nama": "Andi Wijaya",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Marketing Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Rina Sari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Social Media Specialist",
+        "role": "Karyawan",
+        "atasan": "Andi Wijaya"
+    },
+    {
+        "nama": "Eko Prasetyo",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "IT",
+        "jabatan": "IT Support",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Dewi Lestari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "HRD",
+        "jabatan": "HR Generalist",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Budi Santoso",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Siti Aminah",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Executive",
+        "role": "Karyawan",
+        "atasan": "Budi Santoso"
+    },
+    {
+        "nama": "Andi Wijaya",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Marketing Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Rina Sari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Social Media Specialist",
+        "role": "Karyawan",
+        "atasan": "Andi Wijaya"
+    },
+    {
+        "nama": "Eko Prasetyo",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "IT",
+        "jabatan": "IT Support",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Dewi Lestari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "HRD",
+        "jabatan": "HR Generalist",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Budi Santoso",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Siti Aminah",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Executive",
+        "role": "Karyawan",
+        "atasan": "Budi Santoso"
+    },
+    {
+        "nama": "Andi Wijaya",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Marketing Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Rina Sari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Social Media Specialist",
+        "role": "Karyawan",
+        "atasan": "Andi Wijaya"
+    },
+    {
+        "nama": "Eko Prasetyo",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "IT",
+        "jabatan": "IT Support",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Dewi Lestari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "HRD",
+        "jabatan": "HR Generalist",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Budi Santoso",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Siti Aminah",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Executive",
+        "role": "Karyawan",
+        "atasan": "Budi Santoso"
+    },
+    {
+        "nama": "Andi Wijaya",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Marketing Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Rina Sari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Social Media Specialist",
+        "role": "Karyawan",
+        "atasan": "Andi Wijaya"
+    },
+    {
+        "nama": "Eko Prasetyo",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "IT",
+        "jabatan": "IT Support",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Dewi Lestari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "HRD",
+        "jabatan": "HR Generalist",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Budi Santoso",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Siti Aminah",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Sales",
+        "jabatan": "Sales Executive",
+        "role": "Karyawan",
+        "atasan": "Budi Santoso"
+    },
+    {
+        "nama": "Andi Wijaya",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Marketing Manager",
+        "role": "Atasan",
+        "atasan": null
+    },
+    {
+        "nama": "Rina Sari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "Marketing",
+        "jabatan": "Social Media Specialist",
+        "role": "Karyawan",
+        "atasan": "Andi Wijaya"
+    },
+    {
+        "nama": "Eko Prasetyo",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "IT",
+        "jabatan": "IT Support",
+        "role": "Karyawan",
+        "atasan": null
+    },
+    {
+        "nama": "Dewi Lestari",
+        "email": "[EMAIL_ADDRESS]",
+        "divisi": "HRD",
+        "jabatan": "HR Generalist",
+        "role": "Karyawan",
+        "atasan": null
+    }
+]
