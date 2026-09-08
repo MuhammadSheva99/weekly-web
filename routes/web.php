@@ -8,7 +8,10 @@ use App\Http\Controllers\Hrd\DashboardController as HrdDashboardController;
 use App\Http\Controllers\Hrd\MonitoringPicController;
 use App\Http\Controllers\Hrd\UnderperformController;
 use App\Http\Controllers\Hrd\TrendPerformanceController;
-
+use App\Http\Controllers\Hrd\ReportController;
+use App\Http\Controllers\Hrd\NotificationController;
+use App\Http\Controllers\Hrd\CutiController;
+use App\Http\Controllers\Hrd\CutiKaryawanController;
 
 
 
@@ -47,6 +50,25 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
     Route::get('/monitoring-pic', [MonitoringPicController::class, 'index'])->name('monitoring-pic.index');
     Route::get('/underperform', [UnderperformController::class, 'index'])->name('underperform.index');
     Route::get('/trend-performance', [TrendPerformanceController::class, 'index'])->name('trend-performance.index');
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+    Route::get('/report/export-excel', [ReportController::class, 'exportExcel'])->name('report.export-excel');
+    Route::get('/report/export-pdf', [ReportController::class, 'exportPdf'])->name('report.export-pdf');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    Route::prefix('cuti')->name('cuti.')->group(function () {
+        Route::get('/', [CutiController::class, 'dashboard'])->name('dashboard');
+        Route::get('/ajukan', [CutiController::class, 'createForm'])->name('ajukan');
+        Route::post('/ajukan', [CutiController::class, 'store'])->name('store');
+        Route::get('/riwayat', [CutiController::class, 'riwayat'])->name('riwayat');
+        Route::get('/notifikasi', [CutiController::class, 'notifikasi'])->name('notifikasi');
+    });
+    
+    Route::prefix('cuti-karyawan')->name('cuti-karyawan.')->group(function () {
+        Route::get('/pengajuan', [CutiKaryawanController::class, 'pengajuan'])->name('pengajuan');
+        Route::post('/{cuti}/approve', [CutiKaryawanController::class, 'approve'])->name('approve');
+        Route::post('/{cuti}/reject', [CutiKaryawanController::class, 'reject'])->name('reject');
+        Route::get('/riwayat', [CutiKaryawanController::class, 'riwayat'])->name('riwayat');
+    });
 });
 
 require __DIR__.'/auth.php';

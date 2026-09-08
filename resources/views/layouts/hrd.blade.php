@@ -22,9 +22,10 @@
                         ['label' => 'Monitoring PIC', 'route' => 'hrd.monitoring-pic.index'],
                         ['label' => 'Underperform & Alert', 'route' => 'hrd.underperform.index'],
                         ['label' => 'Trend Performance', 'route' => 'hrd.trend-performance.index'],
-                        ['label' => 'Report & Export', 'route' => null],
-                        ['label' => 'Notifikasi', 'route' => null],
-                        ['label' => 'Cuti', 'route' => null],
+                        ['label' => 'Report & Export', 'route' => 'hrd.report.index'],
+                        ['label' => 'Notifikasi', 'route' => 'hrd.notifications.index'],
+                        ['label' => 'Cuti', 'route' => 'hrd.cuti.dashboard'],
+                        ['label' => 'Cuti Karyawan', 'route' => 'hrd.cuti-karyawan.pengajuan'],
                     ];
                 @endphp
 

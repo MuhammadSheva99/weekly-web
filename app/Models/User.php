@@ -77,4 +77,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(AuditLog::class, 'changed_by');
     }
+    
+    public function cutiRequests(): HasMany
+    {
+        return $this->hasMany(CutiRequest::class);
+    }
 }
