@@ -17,6 +17,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login.admin'));
+
+        $middleware->redirectUsersTo(function (Request $request) {
+            $role = $request->user()?->role?->nama;
+
+            return match ($role) {
+                'Admin' => route('admin.users.index'),
+                'HRD' => route('hrd.dashboard'),
+                'Management' => route('management.dashboard'),
+                'Atasan' => route('atasan.dashboard'),
+                default => '/dashboard',
+            };
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

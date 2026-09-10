@@ -12,6 +12,11 @@ use App\Http\Controllers\Hrd\ReportController;
 use App\Http\Controllers\Hrd\NotificationController;
 use App\Http\Controllers\Hrd\CutiController;
 use App\Http\Controllers\Hrd\CutiKaryawanController;
+use App\Http\Controllers\Hrd\DivisiPerformanceController;
+use App\Http\Controllers\Management\DashboardController as ManagementDashboardController;
+use App\Http\Controllers\Management\TrendImprovementController;
+use App\Http\Controllers\Management\CutiKaryawanController as ManagementCutiKaryawanController;
+use App\Http\Controllers\Atasan\DashboardController as AtasanDashboardController;
 
 
 
@@ -54,6 +59,7 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
     Route::get('/report/export-excel', [ReportController::class, 'exportExcel'])->name('report.export-excel');
     Route::get('/report/export-pdf', [ReportController::class, 'exportPdf'])->name('report.export-pdf');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/divisi/{divisi}/show', [DivisiPerformanceController::class, 'show'])->name('divisi.show');
 
     Route::prefix('cuti')->name('cuti.')->group(function () {
         Route::get('/', [CutiController::class, 'dashboard'])->name('dashboard');
@@ -69,6 +75,22 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::post('/{cuti}/reject', [CutiKaryawanController::class, 'reject'])->name('reject');
         Route::get('/riwayat', [CutiKaryawanController::class, 'riwayat'])->name('riwayat');
     });
+});
+
+Route::middleware(['auth', 'role:Management'])->prefix('management')->name('management.')->group(function () {
+    Route::get('/dashboard', [ManagementDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/divisi/{divisi}', [ManagementDashboardController::class, 'divisiShow'])->name('divisi.show');
+    Route::get('/underperform', [ManagementDashboardController::class, 'underperform'])->name('underperform');
+    Route::get('/trend', [TrendImprovementController::class, 'index'])->name('trend.index');
+
+    Route::prefix('cuti-karyawan')->name('cuti-karyawan.')->group(function () {
+        Route::get('/', [ManagementCutiKaryawanController::class, 'pengajuan'])->name('pengajuan');
+        Route::get('/riwayat', [ManagementCutiKaryawanController::class, 'riwayat'])->name('riwayat');
+    });
+});
+
+Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->group(function () {
+    Route::get('/dashboard', [AtasanDashboardController::class, 'index'])->name('dashboard');
 });
 
 require __DIR__.'/auth.php';
