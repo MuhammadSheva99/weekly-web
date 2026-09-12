@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['kpi_id', 'user_id', 'periode', 'nilai_target'])]
+#[Fillable(['kpi_id', 'user_id', 'periode', 'nilai_target', 'bobot'])]
 class TargetBulanan extends Model
 {
     use HasUuids;
@@ -20,6 +20,7 @@ class TargetBulanan extends Model
         return [
             'periode' => 'date',
             'nilai_target' => 'decimal:2',
+            'bobot' => 'decimal:2',
         ];
     }
 

@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\ActualMingguan;
 use App\Models\WeeklyCommitment;
+use App\Observers\ActualMingguanObserver;
 use App\Observers\WeeklyCommitmentObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         WeeklyCommitment::observe(WeeklyCommitmentObserver::class);
+        ActualMingguan::observe(ActualMingguanObserver::class);
     }
 }

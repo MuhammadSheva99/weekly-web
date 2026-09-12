@@ -17,6 +17,15 @@ use App\Http\Controllers\Management\DashboardController as ManagementDashboardCo
 use App\Http\Controllers\Management\TrendImprovementController;
 use App\Http\Controllers\Management\CutiKaryawanController as ManagementCutiKaryawanController;
 use App\Http\Controllers\Atasan\DashboardController as AtasanDashboardController;
+use App\Http\Controllers\Atasan\WeeklyCommitmentController;
+use App\Http\Controllers\Atasan\WeeklyProgressController;
+use App\Http\Controllers\Atasan\SelfReviewController;
+use App\Http\Controllers\Hrd\PicDetailController;
+use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
+use App\Http\Controllers\Karyawan\WeeklyCommitmentController as KaryawanWeeklyCommitmentController;
+use App\Http\Controllers\Karyawan\WeeklyProgressController as KaryawanWeeklyProgressController;
+use App\Http\Controllers\Karyawan\SelfReviewController as KaryawanSelfReviewController;
+
 
 
 
@@ -49,6 +58,30 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/divisi-role/{divisi}', [DivisiRoleController::class, 'destroy'])->name('divisi-role.destroy');
 });
 
+
+Route::middleware(['auth', 'role:Karyawan'])->prefix('karyawan')->name('karyawan.')->group(function () {
+    Route::get('/dashboard', [KaryawanDashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('weekly-commitment')->name('weekly-commitment.')->group(function () {
+        Route::get('/', [KaryawanWeeklyCommitmentController::class, 'create'])->name('create');
+        Route::post('/', [KaryawanWeeklyCommitmentController::class, 'store'])->name('store');
+        Route::put('/{commitment}', [KaryawanWeeklyCommitmentController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('weekly-progress')->name('weekly-progress.')->group(function () {
+        Route::get('/', [KaryawanWeeklyProgressController::class, 'create'])->name('create');
+        Route::post('/', [KaryawanWeeklyProgressController::class, 'store'])->name('store');
+        Route::put('/{progress}', [KaryawanWeeklyProgressController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('self-review')->name('self-review.')->group(function () {
+        Route::get('/', [KaryawanSelfReviewController::class, 'create'])->name('create');
+        Route::post('/', [KaryawanSelfReviewController::class, 'store'])->name('store');
+        Route::put('/{review}', [KaryawanSelfReviewController::class, 'update'])->name('update');
+    });
+});
+
+
 Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(function () {
     Route::get('/dashboard', [HrdDashboardController::class, 'index'])->name('dashboard');
     
@@ -75,6 +108,9 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::post('/{cuti}/reject', [CutiKaryawanController::class, 'reject'])->name('reject');
         Route::get('/riwayat', [CutiKaryawanController::class, 'riwayat'])->name('riwayat');
     });
+
+
+    Route::get('/monitoring-pic/{user}', [PicDetailController::class, 'show'])->name('monitoring-pic.show');
 });
 
 Route::middleware(['auth', 'role:Management'])->prefix('management')->name('management.')->group(function () {
@@ -91,6 +127,24 @@ Route::middleware(['auth', 'role:Management'])->prefix('management')->name('mana
 
 Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->group(function () {
     Route::get('/dashboard', [AtasanDashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('weekly-commitment')->name('weekly-commitment.')->group(function () {
+        Route::get('/', [WeeklyCommitmentController::class, 'create'])->name('create');
+        Route::post('/', [WeeklyCommitmentController::class, 'store'])->name('store');
+        Route::put('/{commitment}', [WeeklyCommitmentController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('weekly-progress')->name('weekly-progress.')->group(function () {
+        Route::get('/', [WeeklyProgressController::class, 'create'])->name('create');
+        Route::post('/', [WeeklyProgressController::class, 'store'])->name('store');
+        Route::put('/{progress}', [WeeklyProgressController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('self-review')->name('self-review.')->group(function () {
+        Route::get('/', [SelfReviewController::class, 'create'])->name('create');
+        Route::post('/', [SelfReviewController::class, 'store'])->name('store');
+        Route::put('/{review}', [SelfReviewController::class, 'update'])->name('update'); 
+    });
 });
 
 require __DIR__.'/auth.php';

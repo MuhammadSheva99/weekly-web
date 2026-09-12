@@ -26,3 +26,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 database/seeders/data/karyawan.jsongit add .gitignore
+/database/seeders/data/*.json
+!/database/seeders/data/*.example.json

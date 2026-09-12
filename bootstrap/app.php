@@ -26,7 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 'HRD' => route('hrd.dashboard'),
                 'Management' => route('management.dashboard'),
                 'Atasan' => route('atasan.dashboard'),
-                default => '/dashboard',
+                'Karyawan' => route('karyawan.dashboard'),
+                default => route('login.karyawan'),
             };
         });
     })

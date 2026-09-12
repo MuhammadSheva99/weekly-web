@@ -54,9 +54,9 @@
                             </span>
                         </td>
                         <td class="py-3 pr-4">
-                            <button type="button" disabled class="px-3 py-1 border border-gray-200 text-gray-400 rounded text-xs cursor-not-allowed">
+                            <a href="{{ route('hrd.monitoring-pic.show', $row->user) }}" class="inline-block px-3 py-1 border border-gray-300 rounded text-xs hover:bg-gray-50">
                                 Lihat
-                            </button>
+                            </a>
                         </td>
                     </tr>
                 @empty

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['nama_kpi', 'satuan', 'divisi_id', 'is_active'])]
+#[Fillable(['nama_kpi', 'satuan', 'pola', 'divisi_id', 'is_active'])]
 class KpiMaster extends Model
 {
     use HasUuids;
