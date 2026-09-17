@@ -11,7 +11,7 @@ class MonitoringPicController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::whereHas('role', fn ($q) => $q->where('nama', 'Karyawan'))
+        $query = User::whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan', 'Hrd']))
             ->with([
                 'divisi',
                 'weeklyCommitment' => fn ($q) => $q->latest()->limit(1)->with([

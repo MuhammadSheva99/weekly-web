@@ -11,7 +11,7 @@ class DivisiPerformanceController extends Controller
     public function show(Divisi $divisi)
     {
         $picList = $divisi->users()
-            ->whereHas('role', fn ($q) => $q->where('nama', 'Karyawan'))
+            ->whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan', 'Hrd']))
             ->orderBy('nama')
             ->get()
             ->map(function ($user) {

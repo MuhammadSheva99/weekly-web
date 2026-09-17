@@ -16,7 +16,7 @@ class DashboardController extends Controller
     {
         $divisiId = $request->get('divisi_id');
 
-        $picQuery = User::whereHas('role', fn ($q) => $q->where('nama', 'Karyawan'));
+        $picQuery = User::whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan', 'Hrd']));
         if ($divisiId) {
             $picQuery->where('divisi_id', $divisiId);
         }
@@ -38,13 +38,13 @@ class DashboardController extends Controller
 
         $divisiListForFilter = Divisi::orderBy('nama')->get();
 
-        $achievementQuery = Divisi::withCount(['users' => fn ($q) => $q->whereHas('role', fn ($r) => $r->where('nama', 'Karyawan'))]);
+        $achievementQuery = Divisi::withCount(['users' => fn ($q) => $q->whereHas('role', fn ($r) => $r->whereIn('nama', ['Karyawan', 'Atasan']))]);
         if ($divisiId) {
             $achievementQuery->where('id', $divisiId);
         }
 
         $achievementPerDivisi = $achievementQuery->orderBy('nama')
-            ->with(['users' => fn ($q) => $q->whereHas('role', fn ($r) => $r->where('nama', 'Karyawan'))->select('id', 'nama', 'divisi_id')])
+            ->with(['users' => fn ($q) => $q->whereHas('role', fn ($r) => $r->whereIn('nama', ['Karyawan', 'Atasan']))->select('id', 'nama', 'divisi_id')])
             ->get()
             ->map(function ($divisi) {
                 $avg = KpiPerformance::whereHas('user', fn ($q) => $q->where('divisi_id', $divisi->id))
@@ -56,7 +56,7 @@ class DashboardController extends Controller
                 return $divisi;
         });
 
-        $underperformQuery = User::whereHas('role', fn ($q) => $q->where('nama', 'Karyawan'))->with('divisi');
+        $underperformQuery = User::whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))->with('divisi');
         if ($divisiId) {
             $underperformQuery->where('divisi_id', $divisiId);
         }

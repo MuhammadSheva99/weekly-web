@@ -1,5 +1,7 @@
 @extends('layouts.karyawan')
+
 @section('title', 'Self Review')
+
 @section('content')
     <h1 class="text-3xl font-bold text-gray-900">Self Review</h1>
     <p class="text-gray-500 mt-1 mb-8">{{ now()->translatedFormat('l, d F Y') }}</p>

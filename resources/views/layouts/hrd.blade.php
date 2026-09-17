@@ -26,9 +26,10 @@
                         ['label' => 'Notifikasi', 'route' => 'hrd.notifications.index'],
                         ['label' => 'Cuti', 'route' => 'hrd.cuti.dashboard'],
                         ['label' => 'Cuti Karyawan', 'route' => 'hrd.cuti-karyawan.pengajuan'],
+                        ['label' => 'Izin', 'route' => 'hrd.izin.dashboard'],
+                        ['label' => 'Izin Karyawan', 'route' => 'hrd.izin-karyawan.pengajuan'],
                     ];
                 @endphp
-
                 @foreach ($menus as $menu)
                     @php $active = $menu['route'] && request()->routeIs($menu['route']); @endphp
                     <a href="{{ $menu['route'] ? route($menu['route']) : '#' }}"

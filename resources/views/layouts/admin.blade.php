@@ -20,7 +20,7 @@
                     $menus = [
                         ['label' => 'Manajemen User', 'route' => 'admin.users.index'],
                         ['label' => 'Divisi & Role', 'route' => 'admin.divisi-role.index'],
-                        ['label' => 'KPI Master', 'route' => null],
+                        ['label' => 'Assign Target KPI', 'route' => 'admin.assign-kpi.index'],
                         ['label' => 'Manajemen', 'route' => null],
                     ];
                 @endphp

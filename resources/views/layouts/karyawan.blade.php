@@ -21,11 +21,11 @@
                         ['label' => 'Weekly Commitment', 'route' => 'karyawan.weekly-commitment.create'],
                         ['label' => 'Weekly Progress', 'route' => 'karyawan.weekly-progress.create'],
                         ['label' => 'Self Review', 'route' => 'karyawan.self-review.create'],
-                        ['label' => 'History Weekly', 'route' => null],
-                        ['label' => 'Trend Performance', 'route' => null],
-                        ['label' => 'Notifikasi', 'route' => null],
-                        ['label' => 'Cuti', 'route' => null],
-                        ['label' => 'Izin', 'route' => null],
+                        ['label' => 'History Weekly', 'route' => 'karyawan.history-weekly.index'],
+                        ['label' => 'Trend Performance', 'route' => 'karyawan.trend-performance.index'],
+                        ['label' => 'Notifikasi', 'route' => 'karyawan.notifications.index'],
+                        ['label' => 'Cuti', 'route' => 'karyawan.cuti.dashboard'],
+                        ['label' => 'Izin', 'route' => 'karyawan.izin.dashboard'],
                     ];
                 @endphp
 

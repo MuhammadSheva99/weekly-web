@@ -22,12 +22,14 @@
                         ['label' => 'Weekly commitment', 'route' => 'atasan.weekly-commitment.create'],
                         ['label' => 'Weekly progress', 'route' => 'atasan.weekly-progress.create'],
                         ['label' => 'Self review', 'route' => 'atasan.self-review.create'],
-                        ['label' => 'Monitoring tim', 'route' => null],
-                        ['label' => 'Detail & feedback', 'route' => null],
-                        ['label' => 'Trend performance tim', 'route' => null],
-                        ['label' => 'Notifikasi', 'route' => null],
-                        ['label' => 'Cuti', 'route' => null],
-                        ['label' => 'Izin', 'route' => null],
+                        ['label' => 'Monitoring tim', 'route' => 'atasan.monitoring-tim.index'],
+                        ['label' => 'Detail & feedback', 'route' => 'atasan.feedback.index'],
+                        ['label' => 'Trend performance tim', 'route' => 'atasan.trend-performance.index'],
+                        ['label' => 'Notifikasi', 'route' => 'atasan.notifications.index'],
+                        ['label' => 'Cuti', 'route' => 'atasan.cuti.dashboard'],
+                        ['label' => 'Izin', 'route' => 'atasan.izin.dashboard'],
+                        ['label' => 'Cuti Anggota Divisi', 'route' => 'atasan.cuti-anggota-divisi.pengajuan'],
+                        ['label' => 'Izin Anggota Divisi', 'route' => 'atasan.izin-anggota-divisi.pengajuan'],
                     ];
                 @endphp
 

@@ -67,9 +67,9 @@
                 </div>
 
                 <div class="ml-auto">
-                    <button type="button" disabled class="px-4 py-1.5 border border-gray-200 text-gray-400 rounded-lg text-sm cursor-not-allowed">
+                    <a href="{{ route('atasan.feedback.index', ['user' => $s->user->id]) }}" class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50">
                         Detail
-                    </button>
+                    </a>
                 </div>
             </div>
         @empty

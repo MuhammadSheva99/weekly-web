@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Hrd;
 use App\Http\Controllers\Controller;
 use App\Models\CutiRequest;
 use App\Models\Divisi;
-use App\Models\NotificationWpm;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +13,7 @@ class CutiKaryawanController extends Controller
 {
     public function pengajuan()
     {
-        $daftar = CutiRequest::where('status', 'menunggu')
+        $daftar = CutiRequest::where('status', 'menunggu_hrd')
             ->with(['user.divisi', 'user.atasan'])
             ->orderBy('tanggal_mulai')
             ->get();
@@ -28,13 +28,11 @@ class CutiKaryawanController extends Controller
             'disetujui_oleh' => Auth::id(),
         ]);
 
-        NotificationWpm::create([
-            'user_id' => $cuti->user_id,
-            'type' => 'cuti_disetujui',
-            'message' => "Pengajuan {$cuti->jenis_cuti} Anda ({$cuti->jumlah_hari} hari) telah disetujui.",
-            'is_read' => false,
-            'sent_at' => now(),
-        ]);
+        NotificationService::send(
+            $cuti->user, 'cuti_disetujui',
+            "Pengajuan {$cuti->jenis_cuti} Anda ({$cuti->jumlah_hari} hari) telah disetujui.",
+            email: true, emailJudul: 'Pengajuan Cuti Disetujui'
+        );
 
         return back()->with('status', 'Cuti berhasil disetujui.');
     }
@@ -49,13 +47,11 @@ class CutiKaryawanController extends Controller
             'alasan_penolakan' => $request->alasan_penolakan,
         ]);
 
-        NotificationWpm::create([
-            'user_id' => $cuti->user_id,
-            'type' => 'cuti_ditolak',
-            'message' => "Pengajuan {$cuti->jenis_cuti} Anda ditolak.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
-            'is_read' => false,
-            'sent_at' => now(),
-        ]);
+        NotificationService::send(
+            $cuti->user, 'cuti_ditolak',
+            "Pengajuan {$cuti->jenis_cuti} Anda ditolak.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
+            email: true, emailJudul: 'Pengajuan Cuti Ditolak'
+        );
 
         return back()->with('status', 'Cuti berhasil ditolak.');
     }

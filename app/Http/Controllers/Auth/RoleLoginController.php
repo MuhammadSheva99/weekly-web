@@ -56,8 +56,9 @@ class RoleLoginController extends Controller
         }
 
         $request->session()->regenerate();
+        $request->session()->forget('url.intended');
 
-        return redirect()->intended($this->redirectPathFor($roleName));
+        return redirect()->to($this->redirectPathFor($roleName));
     }
 
     public function destroy(Request $request)

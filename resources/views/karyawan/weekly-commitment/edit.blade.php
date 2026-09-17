@@ -4,7 +4,10 @@
 
 @section('content')
     <h1 class="text-3xl font-bold text-gray-900">Weekly Commitment</h1>
-    <p class="text-gray-500 mt-1 mb-2">Senin - Minggu {{ $mingguKe }}, {{ now()->translatedFormat('F Y') }} - KPI {{ $targetMingguan->targetBulanan->kpi->nama_kpi }}</p>
+    <p class="text-gray-500 mt-1 mb-2">
+        Senin - Minggu {{ $mingguKe }}, {{ now()->translatedFormat('F Y') }}
+        @if ($targetMingguan) - KPI {{ $targetMingguan->targetBulanan->kpi->nama_kpi }} @endif
+    </p>
     <p class="text-sm text-green-600 mb-8">Sudah disubmit — kamu masih bisa mengubahnya di bawah ini.</p>
 
     @if (session('status'))
@@ -20,12 +23,18 @@
         </div>
     @endif
 
-    <div class="bg-amber-50 rounded-2xl p-6 mb-2">
-        <p class="text-sm text-gray-500">Linked KPI</p>
-        <p class="font-bold text-gray-900 mt-1">
-            {{ $targetMingguan->targetBulanan->kpi->nama_kpi }} · target minggu ini Rp {{ number_format($targetMingguan->nilai_target, 0, ',', '.') }}
-        </p>
-    </div>
+    @if ($targetMingguan)
+        <div class="bg-amber-50 rounded-2xl p-6 mb-2">
+            <p class="text-sm text-gray-500">Linked KPI</p>
+            <p class="font-bold text-gray-900 mt-1">
+                {{ $targetMingguan->targetBulanan->kpi->nama_kpi }} · target minggu ini Rp {{ number_format($targetMingguan->nilai_target, 0, ',', '.') }}
+            </p>
+        </div>
+    @else
+        <div class="bg-gray-50 rounded-2xl p-6 mb-2">
+            <p class="text-sm text-gray-500">Tidak terhubung ke KPI tertentu.</p>
+        </div>
+    @endif
     <p class="text-sm text-gray-400 mb-8">Wajib disubmit sebelum Senin 23:59</p>
 
     <form method="POST" action="{{ route('karyawan.weekly-commitment.update', $commitment) }}">

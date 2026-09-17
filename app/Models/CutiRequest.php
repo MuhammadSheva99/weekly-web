@@ -13,6 +13,7 @@ class CutiRequest extends Model
     protected $fillable = [
         'user_id', 'jenis_cuti', 'tanggal_mulai', 'tanggal_selesai',
         'jumlah_hari', 'keterangan', 'lampiran_path', 'disetujui_oleh',
+        'atasan_approved_by', 'atasan_approved_at',
         'status', 'alasan_penolakan',
     ];
 
@@ -21,6 +22,7 @@ class CutiRequest extends Model
         return [
             'tanggal_mulai' => 'date',
             'tanggal_selesai' => 'date',
+            'atasan_approved_at' => 'datetime',
         ];
     }
 
@@ -32,5 +34,10 @@ class CutiRequest extends Model
     public function disetujuiOleh(): BelongsTo
     {
         return $this->belongsTo(User::class, 'disetujui_oleh');
+    }
+
+    public function atasanApprovedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'atasan_approved_by');
     }
 }

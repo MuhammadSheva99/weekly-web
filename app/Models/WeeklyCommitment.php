@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
-    'target_mingguan_id', 'user_id', 'big_goal', 'prioritas',
+    'target_mingguan_id', 'user_id', 'batch_id', 'big_goal', 'prioritas',
     'metric', 'target', 'output_deliverable', 'status', 'submitted_at',
 ])]
 class WeeklyCommitment extends Model
@@ -57,5 +57,16 @@ class WeeklyCommitment extends Model
     public function approvalComments(): HasMany
     {
         return $this->hasMany(ApprovalComment::class);
+    }
+
+    public function batchSiblings()
+    {
+        if (! $this->batch_id) {
+            return collect([$this]);
+        }
+
+        return static::where('batch_id', $this->batch_id)
+            ->with(['targetMingguan.targetBulanan.kpi', 'weeklyProgress', 'selfReview', 'actualMingguan'])
+            ->get();
     }
 }
