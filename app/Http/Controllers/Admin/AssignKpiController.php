@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Divisi;
 use App\Models\KpiMaster;
 use App\Models\TargetBulanan;
+use App\Models\TargetMingguan;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -29,7 +30,6 @@ class AssignKpiController extends Controller
                 ->orderBy('nama')
                 ->get();
 
-            // Prefill bobot & target dari data yang sudah ada (ambil dari salah satu user di divisi ini)
             $sampleUserId = $userDivisi->first()?->id;
 
             $kpiDivisi = $kpiDivisi->map(function ($kpi) use ($sampleUserId, $periodeDate) {
@@ -41,7 +41,6 @@ class AssignKpiController extends Controller
                         ->first()
                     : null;
 
-                // Kalau periode ini belum ada datanya, coba ambil dari periode manapun yang terakhir (buat contoh bobot)
                 if (! $existing && $sampleUserId) {
                     $existing = TargetBulanan::where('kpi_id', $kpi->id)
                         ->where('user_id', $sampleUserId)
@@ -92,15 +91,23 @@ class AssignKpiController extends Controller
         $count = 0;
         foreach ($users as $user) {
             foreach ($data['kpi'] as $item) {
-                TargetBulanan::updateOrCreate(
+                $targetBulanan = TargetBulanan::updateOrCreate(
                     ['kpi_id' => $item['kpi_id'], 'user_id' => $user->id, 'periode' => $periode],
                     ['nilai_target' => $item['target'], 'bobot' => $item['bobot']]
                 );
+
+                for ($minggu = 1; $minggu <= 4; $minggu++) {
+                    TargetMingguan::updateOrCreate(
+                        ['target_bulanan_id' => $targetBulanan->id, 'minggu_ke' => $minggu],
+                        ['nilai_target' => round($item['target'] / 4, 2)]
+                    );
+                }
+
                 $count++;
             }
         }
 
-        return back()->with('status', "Target berhasil di-assign ke {$users->count()} karyawan ({$count} baris target).");
+        return back()->with('status', "Target berhasil di-assign ke {$users->count()} karyawan ({$count} baris target, otomatis dipecah 4 minggu).");
     }
 
     public function storeIndividu(Request $request)
@@ -115,11 +122,18 @@ class AssignKpiController extends Controller
 
         $periode = \Carbon\Carbon::createFromFormat('Y-m', $data['periode'])->startOfMonth();
 
-        TargetBulanan::updateOrCreate(
+        $targetBulanan = TargetBulanan::updateOrCreate(
             ['kpi_id' => $data['kpi_id'], 'user_id' => $data['user_id'], 'periode' => $periode],
             ['nilai_target' => $data['target'], 'bobot' => $data['bobot']]
         );
 
-        return back()->with('status', 'Target berhasil di-assign.');
+        for ($minggu = 1; $minggu <= 4; $minggu++) {
+            TargetMingguan::updateOrCreate(
+                ['target_bulanan_id' => $targetBulanan->id, 'minggu_ke' => $minggu],
+                ['nilai_target' => round($data['target'] / 4, 2)]
+            );
+        }
+
+        return back()->with('status', 'Target berhasil di-assign, otomatis dipecah 4 minggu.');
     }
 }

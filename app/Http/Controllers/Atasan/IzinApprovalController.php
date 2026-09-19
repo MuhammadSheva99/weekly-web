@@ -92,4 +92,24 @@ class IzinApprovalController extends Controller
             'periode' => $periode,
         ]);
     }
+
+    public function riwayatDetail(Request $request, User $user)
+    {
+        abort_unless($user->atasan_id === Auth::id(), 403);
+
+        $periode = $request->get('periode', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::createFromFormat('Y-m', $periode);
+
+        $riwayat = IzinRequest::where('user_id', $user->id)
+            ->whereMonth('tanggal', $bulan->month)
+            ->whereYear('tanggal', $bulan->year)
+            ->orderBy('tanggal')
+            ->get();
+
+        return view('atasan.izin-anggota-divisi.riwayat-detail', [
+            'anggota' => $user,
+            'riwayat' => $riwayat,
+            'periode' => $periode,
+        ]);
+    }
 }

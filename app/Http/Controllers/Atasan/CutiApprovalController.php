@@ -99,4 +99,32 @@ class CutiApprovalController extends Controller
             'periode' => $periode,
         ]);
     }
+
+    public function riwayatDetail(Request $request, User $user)
+    {
+        abort_unless($user->atasan_id === Auth::id(), 403);
+
+        $periode = $request->get('periode', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::createFromFormat('Y-m', $periode);
+
+        $terpakai = CutiRequest::where('user_id', $user->id)
+            ->where('status', 'disetujui')
+            ->whereYear('tanggal_mulai', $bulan->year)
+            ->sum('jumlah_hari');
+
+        $riwayat = CutiRequest::where('user_id', $user->id)
+            ->whereMonth('tanggal_mulai', $bulan->month)
+            ->whereYear('tanggal_mulai', $bulan->year)
+            ->orderBy('tanggal_mulai')
+            ->get();
+
+        return view('atasan.cuti-anggota-divisi.riwayat-detail', [
+            'anggota' => $user,
+            'jatah' => $user->jatah_cuti_tahunan,
+            'terpakai' => $terpakai,
+            'sisa' => $user->jatah_cuti_tahunan - $terpakai,
+            'riwayat' => $riwayat,
+            'periode' => $periode,
+        ]);
+    }
 }

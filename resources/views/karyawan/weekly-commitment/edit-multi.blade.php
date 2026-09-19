@@ -49,5 +49,6 @@
         <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3.5 rounded-lg transition">
             Update weekly commitment
         </button>
+        
     </form>
 @endsection

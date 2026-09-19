@@ -26,6 +26,7 @@
                         ['label' => 'Notifikasi', 'route' => 'karyawan.notifications.index'],
                         ['label' => 'Cuti', 'route' => 'karyawan.cuti.dashboard'],
                         ['label' => 'Izin', 'route' => 'karyawan.izin.dashboard'],
+                        ['label' => 'Surat Peringatan', 'route' => 'karyawan.surat-peringatan.peraturan'],
                     ];
                 @endphp
 
@@ -58,5 +59,6 @@
             @yield('content')
         </main>
     </div>
+        @stack('scripts')
 </body>
 </html>

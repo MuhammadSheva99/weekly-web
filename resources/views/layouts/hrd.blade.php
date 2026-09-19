@@ -28,6 +28,7 @@
                         ['label' => 'Cuti Karyawan', 'route' => 'hrd.cuti-karyawan.pengajuan'],
                         ['label' => 'Izin', 'route' => 'hrd.izin.dashboard'],
                         ['label' => 'Izin Karyawan', 'route' => 'hrd.izin-karyawan.pengajuan'],
+                        ['label' => 'Surat Peringatan', 'route' => 'hrd.surat-peringatan.peraturan'],
                     ];
                 @endphp
                 @foreach ($menus as $menu)

@@ -57,7 +57,7 @@
             </div>
         @else
             <div class="px-4 py-3 bg-amber-50 text-amber-700 rounded-lg text-sm">
-                Kamu tidak memiliki atasan langsung — pengajuan akan langsung diteruskan ke HRD.
+                Kamu tidak memiliki atasan langsung - pengajuan akan langsung diteruskan ke HRD.
             </div>
         @endif
 

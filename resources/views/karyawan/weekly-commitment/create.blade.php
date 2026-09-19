@@ -4,10 +4,12 @@
 
 @section('content')
     <h1 class="text-3xl font-bold text-gray-900">Weekly Commitment</h1>
+    
     <p class="text-gray-500 mt-1 mb-8">
         Senin - Minggu {{ $mingguKe }}, {{ now()->translatedFormat('F Y') }}
         @if ($targetMingguan) - KPI {{ $targetMingguan->targetBulanan->kpi->nama_kpi }} @endif
     </p>
+    
 
     @if ($errors->any())
         <div class="mb-6 px-4 py-3 bg-red-50 text-red-700 rounded-lg text-sm">
