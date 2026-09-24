@@ -55,7 +55,7 @@
                 </div>
 
                 <div class="w-28 shrink-0 text-sm">
-                    <p class="text-xs text-gray-400">Diteruskan ke</p>
+                    <p class="text-xs text-gray-400">Diteruskan oleh</p>
                     <p class="font-medium text-gray-800">{{ $c->user->atasan->nama ?? '-' }}</p>
                 </div>
 

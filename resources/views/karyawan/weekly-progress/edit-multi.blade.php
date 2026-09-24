@@ -19,7 +19,7 @@
         <p class="font-bold text-gray-900">{{ $commitments->first()->big_goal }}</p>
     </div>
 
-    <form method="POST" action="{{ route('karyawan.weekly-progress.update') }}">
+    <form method="POST" action="{{ route('karyawan.weekly-progress.update') }}" id="formWeeklyProgress">
         @csrf
         @method('PUT')
 
@@ -37,9 +37,19 @@
                         {{ $c->targetMingguan?->targetBulanan?->kpi?->nama_kpi ?? 'Target Manual' }}
                     </div>
                     <div class="text-sm text-gray-600">{{ number_format($c->target, 0, ',', '.') }}</div>
-                    <input type="number" step="0.01" name="actual[{{ $c->weeklyProgress->id }}]" required
-                           value="{{ $c->weeklyProgress->actual_sementara }}"
-                           class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+
+                    <div>
+                        <input
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="0"
+                            class="actual-display px-3 py-2 border border-gray-300 rounded-lg text-sm w-full"
+                            value="{{ old('actual.' . $c->weeklyProgress->id, number_format((float) $c->weeklyProgress->actual_sementara, 0, ',', '.')) }}"
+                        >
+                        <input type="hidden" name="actual[{{ $c->weeklyProgress->id }}]" class="actual-hidden" required
+                               value="{{ old('actual.' . $c->weeklyProgress->id, $c->weeklyProgress->actual_sementara) }}">
+                    </div>
                 </div>
             @endforeach
         </div>
@@ -62,4 +72,41 @@
             Update weekly progress
         </button>
     </form>
+
+    <script>
+        (function () {
+            // ketik "50000000" -> otomatis tampil "50.000.000"
+            function formatRibuan(angka) {
+                const bersih = angka.replace(/\D/g, '');
+                if (!bersih) return '';
+                return bersih.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            document.addEventListener('input', function (e) {
+                if (!e.target.classList.contains('actual-display')) return;
+
+                const display = e.target;
+                const hidden  = display.nextElementSibling;
+
+                const posisiKursorDariBelakang = display.value.length - display.selectionStart;
+                const formatted = formatRibuan(display.value);
+                display.value = formatted;
+                hidden.value = formatted.replace(/\./g, '');
+
+                const posisiBaru = Math.max(0, display.value.length - posisiKursorDariBelakang);
+                display.setSelectionRange(posisiBaru, posisiBaru);
+            });
+
+            document.getElementById('formWeeklyProgress').addEventListener('submit', function (e) {
+                let ada_kosong = false;
+                document.querySelectorAll('.actual-hidden').forEach(function (hidden) {
+                    if (!hidden.value) ada_kosong = true;
+                });
+                if (ada_kosong) {
+                    e.preventDefault();
+                    alert('Actual sementara untuk setiap KPI wajib diisi.');
+                }
+            });
+        })();
+    </script>
 @endsection

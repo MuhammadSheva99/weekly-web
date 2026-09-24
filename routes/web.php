@@ -184,6 +184,7 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::post('/{izin}/approve', [IzinKaryawanController::class, 'approve'])->name('approve');
         Route::post('/{izin}/reject', [IzinKaryawanController::class, 'reject'])->name('reject');
         Route::get('/riwayat', [IzinKaryawanController::class, 'riwayat'])->name('riwayat');
+        Route::get('/riwayat/{karyawan}', [IzinKaryawanController::class, 'riwayatDetail'])->name('riwayat.detail');
     });
 
     Route::get('/monitoring-pic/{user}', [PicDetailController::class, 'show'])->name('monitoring-pic.show');
@@ -222,13 +223,13 @@ Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->g
     Route::prefix('weekly-progress')->name('weekly-progress.')->group(function () {
         Route::get('/', [WeeklyProgressController::class, 'create'])->name('create');
         Route::post('/', [WeeklyProgressController::class, 'store'])->name('store');
-        Route::put('/{progress}', [WeeklyProgressController::class, 'update'])->name('update');
+        Route::put('/', [WeeklyProgressController::class, 'update'])->name('update'); // ganti dari /{progress}
     });
 
     Route::prefix('self-review')->name('self-review.')->group(function () {
         Route::get('/', [SelfReviewController::class, 'create'])->name('create');
         Route::post('/', [SelfReviewController::class, 'store'])->name('store');
-        Route::put('/{review}', [SelfReviewController::class, 'update'])->name('update'); 
+        Route::put('/', [SelfReviewController::class, 'update'])->name('update');
     });
 
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');

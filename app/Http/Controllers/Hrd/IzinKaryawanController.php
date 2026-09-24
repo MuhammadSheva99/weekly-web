@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hrd;
 use App\Http\Controllers\Controller;
 use App\Models\Divisi;
 use App\Models\IzinRequest;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,15 +59,53 @@ class IzinKaryawanController extends Controller
 
     public function riwayat(Request $request)
     {
-        $query = IzinRequest::whereIn('status', ['disetujui', 'ditolak'])->with('user.divisi');
+        $query = User::query();
 
         if ($request->filled('divisi_id')) {
-            $query->whereHas('user', fn ($q) => $q->where('divisi_id', $request->divisi_id));
+            $query->where('divisi_id', $request->divisi_id);
         }
 
+        $karyawan = $query->orderBy('nama')->get();
+
+        $periode = $request->get('periode', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::createFromFormat('Y-m', $periode);
+
+        $data = $karyawan->map(function ($k) use ($bulan) {
+            $riwayatBulanIni = IzinRequest::where('user_id', $k->id)
+                ->whereMonth('tanggal', $bulan->month)
+                ->whereYear('tanggal', $bulan->year)
+                ->orderBy('tanggal')
+                ->get();
+
+            return (object) [
+                'user' => $k,
+                'jumlah' => $riwayatBulanIni->count(),
+                'riwayat' => $riwayatBulanIni,
+            ];
+        });
+
         return view('hrd.izin-karyawan.riwayat', [
-            'riwayat' => $query->orderByDesc('tanggal')->get(),
+            'data' => $data,
+            'periode' => $periode,
             'divisiList' => Divisi::orderBy('nama')->get(),
+        ]);
+    }
+
+    public function riwayatDetail(Request $request, User $karyawan)
+    {
+        $periode = $request->get('periode', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::createFromFormat('Y-m', $periode);
+
+        $riwayat = IzinRequest::where('user_id', $karyawan->id)
+            ->whereMonth('tanggal', $bulan->month)
+            ->whereYear('tanggal', $bulan->year)
+            ->orderBy('tanggal')
+            ->get();
+
+        return view('hrd.izin-karyawan.riwayat.detail', [
+            'karyawan' => $karyawan,
+            'riwayat' => $riwayat,
+            'periode' => $periode,
         ]);
     }
 }

@@ -19,7 +19,7 @@
         <p class="font-bold text-gray-900">{{ $commitments->first()->big_goal }}</p>
     </div>
 
-    <form method="POST" action="{{ route('karyawan.self-review.update') }}">
+    <form method="POST" action="{{ route('karyawan.self-review.update') }}" id="formSelfReview">
         @csrf
         @method('PUT')
 
@@ -37,9 +37,19 @@
                         {{ $c->targetMingguan?->targetBulanan?->kpi?->nama_kpi ?? 'Target Manual' }}
                     </div>
                     <div class="text-sm text-gray-600">{{ number_format($c->target, 0, ',', '.') }}</div>
-                    <input type="number" step="0.01" name="actual[{{ $c->selfReview->id }}]" required
-                           value="{{ $c->selfReview->actual }}"
-                           class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+
+                    <div>
+                        <input
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="0"
+                            class="actual-display px-3 py-2 border border-gray-300 rounded-lg text-sm w-full"
+                            value="{{ old('actual.' . $c->selfReview->id, number_format((float) $c->selfReview->actual, 0, ',', '.')) }}"
+                        >
+                        <input type="hidden" name="actual[{{ $c->selfReview->id }}]" class="actual-hidden" required
+                               value="{{ old('actual.' . $c->selfReview->id, $c->selfReview->actual) }}">
+                    </div>
                 </div>
             @endforeach
         </div>
@@ -65,4 +75,41 @@
             Update self review
         </button>
     </form>
+
+    <script>
+        (function () {
+            // ketik "50000000" -> otomatis tampil "50.000.000"
+            function formatRibuan(angka) {
+                const bersih = angka.replace(/\D/g, '');
+                if (!bersih) return '';
+                return bersih.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            document.addEventListener('input', function (e) {
+                if (!e.target.classList.contains('actual-display')) return;
+
+                const display = e.target;
+                const hidden  = display.nextElementSibling;
+
+                const posisiKursorDariBelakang = display.value.length - display.selectionStart;
+                const formatted = formatRibuan(display.value);
+                display.value = formatted;
+                hidden.value = formatted.replace(/\./g, '');
+
+                const posisiBaru = Math.max(0, display.value.length - posisiKursorDariBelakang);
+                display.setSelectionRange(posisiBaru, posisiBaru);
+            });
+
+            document.getElementById('formSelfReview').addEventListener('submit', function (e) {
+                let ada_kosong = false;
+                document.querySelectorAll('.actual-hidden').forEach(function (hidden) {
+                    if (!hidden.value) ada_kosong = true;
+                });
+                if (ada_kosong) {
+                    e.preventDefault();
+                    alert('Actual final untuk setiap KPI wajib diisi.');
+                }
+            });
+        })();
+    </script>
 @endsection

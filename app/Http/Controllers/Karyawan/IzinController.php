@@ -51,13 +51,18 @@ class IzinController extends Controller
         ]);
 
         $user = Auth::user();
-        $statusAwal = $user->atasan_id ? 'menunggu_atasan' : 'menunggu_hrd';
+        $isTerlambat = $data['jenis_izin'] === 'berangkat_terlambat';
+
+        // Izin "berangkat terlambat" langsung tercatat, tidak perlu approval
+        $statusAwal = $isTerlambat
+            ? 'disetujui'
+            : ($user->atasan_id ? 'menunggu_atasan' : 'menunggu_hrd');
 
         $lampiranPath = $request->hasFile('lampiran')
             ? $request->file('lampiran')->store('izin-lampiran', 'public')
             : null;
 
-        IzinRequest::create([
+        $izin = IzinRequest::create([
             'user_id' => $user->id,
             'jenis_izin' => $data['jenis_izin'],
             'tanggal' => $data['tanggal'],
@@ -70,7 +75,27 @@ class IzinController extends Controller
 
         $label = IzinRequest::JENIS_IZIN[$data['jenis_izin']];
 
-        if ($statusAwal === 'menunggu_atasan') {
+        if ($isTerlambat) {
+            // Notifikasi informasi saja, bukan permintaan approval
+            $jamMulai = \Carbon\Carbon::parse($data['jam_mulai'])->format('H:i');
+            $pesan = "{$user->nama} melapor {$label} pada {$izin->tanggal->format('d/m/Y')} jam {$jamMulai}. Tidak perlu persetujuan.";
+
+            if ($user->atasan) {
+                NotificationService::send(
+                    $user->atasan, 'izin_menunggu',
+                    $pesan,
+                    email: true, emailJudul: 'Info: Karyawan Berangkat Terlambat'
+                );
+            }
+
+            User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($pesan) {
+                NotificationService::send(
+                    $hrd, 'izin_menunggu',
+                    $pesan,
+                    email: true, emailJudul: 'Info: Karyawan Berangkat Terlambat'
+                );
+            });
+        } elseif ($statusAwal === 'menunggu_atasan') {
             NotificationService::send(
                 $user->atasan, 'izin_menunggu',
                 "{$user->nama} mengajukan {$label}, menunggu persetujuan Anda.",

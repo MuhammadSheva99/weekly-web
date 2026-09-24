@@ -26,7 +26,8 @@
 
     <form method="POST" action="{{ route('atasan.weekly-commitment.store') }}">
         @csrf
-        <input type="hidden" name="target_mingguan_id" value="{{ $targetMingguan->id }}">
+        <input type="hidden" name="mode" value="manual">
+        <input type="hidden" name="target_mingguan_id" value="{{ $targetMingguan->id ?? '' }}">
 
         <label class="block text-sm text-gray-500 mb-2">Big goal</label>
         <input type="text" name="big_goal" required value="{{ old('big_goal') }}"
