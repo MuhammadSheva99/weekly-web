@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hrd;
 use App\Http\Controllers\Controller;
 use App\Models\CutiRequest;
 use App\Models\Divisi;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,26 +59,70 @@ class CutiKaryawanController extends Controller
 
     public function riwayat(Request $request)
     {
-        $query = CutiRequest::whereIn('status', ['disetujui', 'ditolak'])
-            ->with(['user.divisi']);
+        $query = User::query();
 
         if ($request->filled('divisi_id')) {
-            $query->whereHas('user', fn ($q) => $q->where('divisi_id', $request->divisi_id));
+            $query->where('divisi_id', $request->divisi_id);
         }
 
-        $riwayat = $query->orderByDesc('tanggal_mulai')->get()->map(function ($c) {
-            $terpakaiTahunIni = CutiRequest::where('user_id', $c->user_id)
+        $karyawan = $query->orderBy('nama')->get();
+
+        $periode = $request->get('periode', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::createFromFormat('Y-m', $periode);
+
+        $data = $karyawan->map(function ($k) use ($bulan) {
+            $tahun = $bulan->year;
+
+            $terpakai = CutiRequest::where('user_id', $k->id)
                 ->where('status', 'disetujui')
-                ->whereYear('tanggal_mulai', now()->year)
+                ->whereYear('tanggal_mulai', $tahun)
                 ->sum('jumlah_hari');
 
-            $c->sisa_cuti = $c->user->jatah_cuti_tahunan - $terpakaiTahunIni;
-            return $c;
+            $riwayatBulanIni = CutiRequest::where('user_id', $k->id)
+                ->whereMonth('tanggal_mulai', $bulan->month)
+                ->whereYear('tanggal_mulai', $bulan->year)
+                ->orderBy('tanggal_mulai')
+                ->get();
+
+            return (object) [
+                'user' => $k,
+                'jatah' => $k->jatah_cuti_tahunan,
+                'terpakai' => $terpakai,
+                'sisa' => $k->jatah_cuti_tahunan - $terpakai,
+                'riwayat' => $riwayatBulanIni,
+            ];
         });
 
         return view('hrd.cuti-karyawan.riwayat', [
-            'riwayat' => $riwayat,
+            'data' => $data,
+            'periode' => $periode,
             'divisiList' => Divisi::orderBy('nama')->get(),
+        ]);
+    }
+
+    public function riwayatDetail(Request $request, User $karyawan)
+    {
+        $periode = $request->get('periode', now()->format('Y-m'));
+        $bulan = \Carbon\Carbon::createFromFormat('Y-m', $periode);
+
+        $terpakai = CutiRequest::where('user_id', $karyawan->id)
+            ->where('status', 'disetujui')
+            ->whereYear('tanggal_mulai', $bulan->year)
+            ->sum('jumlah_hari');
+
+        $riwayat = CutiRequest::where('user_id', $karyawan->id)
+            ->whereMonth('tanggal_mulai', $bulan->month)
+            ->whereYear('tanggal_mulai', $bulan->year)
+            ->orderBy('tanggal_mulai')
+            ->get();
+
+        return view('hrd.cuti-karyawan.riwayat.detail', [
+            'karyawan' => $karyawan,
+            'jatah' => $karyawan->jatah_cuti_tahunan,
+            'terpakai' => $terpakai,
+            'sisa' => $karyawan->jatah_cuti_tahunan - $terpakai,
+            'riwayat' => $riwayat,
+            'periode' => $periode,
         ]);
     }
 }

@@ -1,12 +1,16 @@
 @extends('layouts.hrd')
 
-@section('title', 'Surat Peringatan')
+@section('title', 'SP Karyawan')
 
 @section('content')
-    <h1 class="text-3xl font-bold text-gray-900">Surat Peringatan</h1>
-    <p class="text-gray-500 mt-1 mb-6">Peraturan perusahaan dan riwayat pelanggaran karyawan</p>
+    <h1 class="text-3xl font-bold text-gray-900">Dashboard Surat Peringatan Karyawan</h1>
+    <p class="text-gray-500 mt-1 mb-6">Management SP Karyawan</p>
 
-    @include('hrd.surat-peringatan._tabs')
+    @include('hrd.sp-karyawan._tabs')
+
+    @if (session('status'))
+        <div class="mb-6 px-4 py-3 bg-green-50 text-green-700 rounded-lg text-sm">{{ session('status') }}</div>
+    @endif
 
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Riwayat Pelanggaran Karyawan</h2>
 

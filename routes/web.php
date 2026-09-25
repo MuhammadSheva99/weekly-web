@@ -169,6 +169,8 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::post('/{cuti}/approve', [CutiKaryawanController::class, 'approve'])->name('approve');
         Route::post('/{cuti}/reject', [CutiKaryawanController::class, 'reject'])->name('reject');
         Route::get('/riwayat', [CutiKaryawanController::class, 'riwayat'])->name('riwayat');
+        Route::get('/riwayat/{karyawan}', [CutiKaryawanController::class, 'riwayatDetail'])->name('riwayat.detail');
+
     });
 
     Route::prefix('izin')->name('izin.')->group(function () {
@@ -192,8 +194,13 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
     Route::prefix('surat-peringatan')->name('surat-peringatan.')->group(function () {
         Route::get('/', [SuratPeringatanController::class, 'peraturan'])->name('peraturan');
         Route::post('/dokumen', [SuratPeringatanController::class, 'storeDokumen'])->name('store-dokumen');
+        Route::get('/riwayat', [SuratPeringatanController::class, 'riwayatPelanggaran'])->name('riwayat');
+    });
+
+    Route::prefix('sp-karyawan')->name('sp-karyawan.')->group(function () {
+        Route::get('/terbitkan', [SuratPeringatanController::class, 'terbitkanForm'])->name('terbitkan');
+        Route::post('/terbitkan', [SuratPeringatanController::class, 'store'])->name('store');
         Route::get('/riwayat', [SuratPeringatanController::class, 'riwayat'])->name('riwayat');
-        Route::post('/riwayat', [SuratPeringatanController::class, 'store'])->name('store');
         Route::get('/{sp}/download', [SuratPeringatanController::class, 'download'])->name('download');
         Route::delete('/{sp}/destroy', [SuratPeringatanController::class, 'destroy'])->name('destroy');
     });

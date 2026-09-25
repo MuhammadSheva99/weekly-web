@@ -11,10 +11,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SuratPeringatanController extends Controller
 {
+    // ============ Menu "Surat Peringatan" ============
+
     public function peraturan()
     {
         $dokumen = CompanyDocument::latest()->first();
@@ -46,7 +49,31 @@ class SuratPeringatanController extends Controller
         return back()->with('status', 'Dokumen Peraturan Perusahaan berhasil diperbarui.');
     }
 
+    // Tab "Riwayat Pelanggaran" di menu "Surat Peringatan"
+    public function riwayatPelanggaran(Request $request)
+    {
+        return view('hrd.surat-peringatan.riwayat', $this->riwayatData($request));
+    }
+
+    // ============ Menu "SP Karyawan" ============
+
+    public function terbitkanForm()
+    {
+        return view('hrd.sp-karyawan.terbitkan', [
+            'allUsers' => User::whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))
+                ->orderBy('nama')
+                ->get(),
+        ]);
+    }
+
+    // Tab "Riwayat Pelanggaran" di menu "SP Karyawan"
     public function riwayat(Request $request)
+    {
+        return view('hrd.sp-karyawan.riwayat', $this->riwayatData($request));
+    }
+
+    // Logic pengambilan data riwayat, dipakai bersama oleh 2 tab di atas
+    protected function riwayatData(Request $request): array
     {
         $query = SuratPeringatan::with(['user.divisi', 'diterbitkanOleh']);
 
@@ -61,13 +88,21 @@ class SuratPeringatanController extends Controller
             }
         }
 
-        $daftar = $query->orderByDesc('tanggal_terbit')->get();
-
-        return view('hrd.surat-peringatan.riwayat', [
-            'daftar' => $daftar,
+        return [
+            'daftar' => $query->orderByDesc('tanggal_terbit')->get(),
             'divisiList' => Divisi::orderBy('nama')->get(),
-            'allUsers' => User::whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))->orderBy('nama')->get(),
-        ]);
+        ];
+    }
+
+    protected function generateNoSp(int $tahun): string
+    {
+        $urutanTerakhir = SuratPeringatan::whereYear('tanggal_terbit', $tahun)
+            ->lockForUpdate()
+            ->count();
+
+        $nomorUrut = str_pad($urutanTerakhir + 1, 3, '0', STR_PAD_LEFT);
+
+        return "SP-{$tahun}-{$nomorUrut}";
     }
 
     public function store(Request $request)
@@ -83,17 +118,21 @@ class SuratPeringatanController extends Controller
         $tanggalTerbit = Carbon::parse($data['tanggal_terbit']);
         $karyawan = User::findOrFail($data['user_id']);
 
-        $sp = SuratPeringatan::create([
-            'user_id' => $data['user_id'],
-            'level' => $data['level'],
-            'alasan' => $data['alasan'],
-            'konsekuensi' => $data['konsekuensi'] ?? null,
-            'tanggal_terbit' => $tanggalTerbit,
-            'tanggal_berakhir' => $tanggalTerbit->copy()->addMonths(3),
-            'diterbitkan_oleh' => Auth::id(),
-        ]);
+        $sp = DB::transaction(function () use ($data, $tanggalTerbit) {
+            $noSp = $this->generateNoSp((int) $tanggalTerbit->format('Y'));
 
-        // Generate dokumen dari template
+            return SuratPeringatan::create([
+                'no_sp' => $noSp,
+                'user_id' => $data['user_id'],
+                'level' => $data['level'],
+                'alasan' => $data['alasan'],
+                'konsekuensi' => $data['konsekuensi'] ?? null,
+                'tanggal_terbit' => $tanggalTerbit,
+                'tanggal_berakhir' => $tanggalTerbit->copy()->addMonths(3),
+                'diterbitkan_oleh' => Auth::id(),
+            ]);
+        });
+
         $levelAngka = (int) str_replace('SP', '', $sp->level);
         $levelBerikutnya = $levelAngka < 3 ? $levelAngka + 1 : null;
 
@@ -128,7 +167,7 @@ class SuratPeringatanController extends Controller
             'sent_at' => now(),
         ]);
 
-        return redirect()->route('hrd.surat-peringatan.riwayat')->with('status', 'Surat Peringatan berhasil diterbitkan.');
+        return redirect()->route('hrd.sp-karyawan.riwayat')->with('status', 'Surat Peringatan berhasil diterbitkan.');
     }
 
     public function download(SuratPeringatan $sp)

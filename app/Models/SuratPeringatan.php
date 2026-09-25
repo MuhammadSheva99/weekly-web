@@ -13,7 +13,7 @@ class SuratPeringatan extends Model
     protected $table = 'surat_peringatan';
 
     protected $fillable = [
-        'user_id', 'level', 'alasan', 'konsekuensi',
+        'no_sp', 'user_id', 'level', 'alasan', 'konsekuensi',
         'tanggal_terbit', 'tanggal_berakhir', 'diterbitkan_oleh', 'file_path',
     ];
 
