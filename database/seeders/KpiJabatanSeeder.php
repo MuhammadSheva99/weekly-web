@@ -5,11 +5,16 @@ namespace Database\Seeders;
 use App\Models\Divisi;
 use App\Models\KpiMaster;
 use App\Models\TargetBulanan;
+use App\Models\TargetMingguan;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class KpiJabatanSeeder extends Seeder
 {
+    // Role yang bisa kena auto-assign KPI divisi-wide.
+    // 'HRD' ditambahkan supaya divisi HR-GA (Irwan) ikut ter-assign.
+    protected const ROLE_DIVISI_WIDE = ['Karyawan', 'Atasan', 'HRD'];
+
     public function run(): void
     {
         // 1. Buat divisi baru yang belum ada (aman kalau sudah ada, tidak duplikat)
@@ -26,8 +31,8 @@ class KpiJabatanSeeder extends Seeder
                 ['Stock Information Accuracy', '%', 'minimize', 40],
             ],
             'Telesales' => [
-                ['Sales Revenue', 'Rupiah', 'maximize', 30],
-                ['Partner Acquisition', 'Angka', 'maximize', 20],
+                ['Sales Revenue', 'Rupiah', 'maximize', 50],
+                ['Partner Acquisition', 'Angka', 'maximize', 25],
                 ['Lead Conversion Rate', '%', 'maximize', 25],
             ],
             'Supervisor' => [
@@ -76,12 +81,25 @@ class KpiJabatanSeeder extends Seeder
                 ['Zero Complaint', 'Angka', 'minimize', 25],
                 ['Performance Tim', 'Angka', 'maximize', 10],
             ],
+            // KPI resmi HR-GA — dari dokumen "KEY PERFORMANCE INDICATOR - SUPPORT -
+            // HUMAN RESOURCE GENERAL AFFAIR" (No Dokumen: KPI/GAS/013/VII/2026,
+            // Tanggal Efektif 1/9/2026). Bobot total 100%.
+            // Catatan: "Asset Maintenance Completion Rate" ditandai Minimize di
+            // dokumen aslinya (bukan salah ketik saya) — diikuti persis apa adanya.
+            'HR-GA' => [
+                ['Hiring Fulfillment Rate', '%', 'maximize', 20],
+                ['Disciplinary Violations', 'Angka', 'minimize', 25],
+                ['Asset Maintenance Completion Rate', '%', 'minimize', 15],
+                ['Performance Review Completion', '%', 'maximize', 30],
+                ['Training Plan Execution Rate', '%', 'maximize', 10],
+            ],
         ];
 
         // 3. Divisi yang KPI-nya berlaku untuk SEMUA karyawan di divisi itu
         $divisiWide = [
             'Admin Sales', 'Telesales', 'Supervisor', 'Team Leader Digital Marketing',
             'Content Creator TikTok', 'Content Creator', 'Marketing Many Platform',
+            'HR-GA',
         ];
 
         // 4. Divisi yang KPI-nya cuma untuk orang tertentu — dibaca dari file terpisah (tidak di-commit)
@@ -124,7 +142,7 @@ class KpiJabatanSeeder extends Seeder
                     ->get();
             } elseif (in_array($namaDivisi, $divisiWide)) {
                 $users = User::where('divisi_id', $divisi->id)
-                    ->whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))
+                    ->whereHas('role', fn ($q) => $q->whereIn('nama', self::ROLE_DIVISI_WIDE))
                     ->get();
             } else {
                 $users = collect();
@@ -132,10 +150,17 @@ class KpiJabatanSeeder extends Seeder
 
             foreach ($users as $user) {
                 foreach ($kpiIds as $item) {
-                    TargetBulanan::firstOrCreate(
+                    $targetBulanan = TargetBulanan::firstOrCreate(
                         ['kpi_id' => $item['kpi']->id, 'user_id' => $user->id, 'periode' => $periode],
                         ['nilai_target' => 0, 'bobot' => $item['bobot']]
                     );
+
+                    for ($minggu = 1; $minggu <= 4; $minggu++) {
+                        TargetMingguan::firstOrCreate(
+                            ['target_bulanan_id' => $targetBulanan->id, 'minggu_ke' => $minggu],
+                            ['nilai_target' => round($targetBulanan->nilai_target / 4, 2)]
+                        );
+                    }
                 }
             }
 

@@ -12,7 +12,7 @@ class IzinRequest extends Model
 
     const JENIS_IZIN = [
         'berangkat_siang' => 'Izin berangkat siang',
-        'pulang_cepat' => 'Izin pulang cepat',
+        'pulang_cepat' => 'Izin pulang siang',
         'berangkat_terlambat' => 'Izin berangkat terlambat',
         'keluar_sementara' => 'Izin keluar sementara',
     ];

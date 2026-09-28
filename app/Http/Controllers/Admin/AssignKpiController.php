@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 
 class AssignKpiController extends Controller
 {
+    protected const ROLE_ASSIGNABLE = ['Karyawan', 'Atasan', 'HRD'];
+
     public function index(Request $request)
     {
         $divisiList = Divisi::orderBy('nama')->get();
@@ -26,7 +28,7 @@ class AssignKpiController extends Controller
         if ($selectedDivisiId) {
             $kpiDivisi = KpiMaster::where('divisi_id', $selectedDivisiId)->where('is_active', true)->get();
             $userDivisi = User::where('divisi_id', $selectedDivisiId)
-                ->whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))
+                ->whereHas('role', fn ($q) => $q->whereIn('nama', self::ROLE_ASSIGNABLE))
                 ->orderBy('nama')
                 ->get();
 
@@ -55,7 +57,7 @@ class AssignKpiController extends Controller
             });
         }
 
-        $allUsers = User::whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))
+        $allUsers = User::whereHas('role', fn ($q) => $q->whereIn('nama', self::ROLE_ASSIGNABLE))
             ->with('divisi')
             ->orderBy('nama')
             ->get();
@@ -85,7 +87,7 @@ class AssignKpiController extends Controller
         $periode = \Carbon\Carbon::createFromFormat('Y-m', $data['periode'])->startOfMonth();
 
         $users = User::where('divisi_id', $data['divisi_id'])
-            ->whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))
+            ->whereHas('role', fn ($q) => $q->whereIn('nama', self::ROLE_ASSIGNABLE))
             ->get();
 
         $count = 0;

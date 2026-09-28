@@ -8,6 +8,9 @@ use App\Http\Controllers\Admin\AssignKpiController;
 
 
 use App\Http\Controllers\Hrd\DashboardController as HrdDashboardController;
+use App\Http\Controllers\Hrd\WeeklyCommitmentController as HrdWeeklyCommitmentController;
+use App\Http\Controllers\Hrd\WeeklyProgressController as HrdWeeklyProgressController;
+use App\Http\Controllers\Hrd\SelfReviewController as HrdSelfReviewController;
 use App\Http\Controllers\Hrd\MonitoringPicController;
 use App\Http\Controllers\Hrd\UnderperformController;
 use App\Http\Controllers\Hrd\TrendPerformanceController;
@@ -143,6 +146,24 @@ Route::middleware(['auth', 'role:Karyawan'])->prefix('karyawan')->name('karyawan
 
 Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(function () {
     Route::get('/dashboard', [HrdDashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('weekly-commitment')->name('weekly-commitment.')->group(function () {
+        Route::get('/', [HrdWeeklyCommitmentController::class, 'create'])->name('create');
+        Route::post('/', [HrdWeeklyCommitmentController::class, 'store'])->name('store');
+        Route::put('/{commitment}', [HrdWeeklyCommitmentController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('weekly-progress')->name('weekly-progress.')->group(function () {
+        Route::get('/', [HrdWeeklyProgressController::class, 'create'])->name('create');
+        Route::post('/', [HrdWeeklyProgressController::class, 'store'])->name('store');
+        Route::put('/', [HrdWeeklyProgressController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('self-review')->name('self-review.')->group(function () {
+        Route::get('/', [HrdSelfReviewController::class, 'create'])->name('create');
+        Route::post('/', [HrdSelfReviewController::class, 'store'])->name('store');
+        Route::put('/', [HrdSelfReviewController::class, 'update'])->name('update');
+    });
     
     Route::get('/monitoring-pic', [MonitoringPicController::class, 'index'])->name('monitoring-pic.index');
     Route::get('/underperform', [UnderperformController::class, 'index'])->name('underperform.index');

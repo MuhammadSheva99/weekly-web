@@ -2,34 +2,42 @@
 
 namespace App\Observers;
 
-use App\Models\WeeklyCommitment;
 use App\Models\NotificationWpm;
+use App\Models\User;
+use App\Models\WeeklyCommitment;
 
 class WeeklyCommitmentObserver
 {
     public function created(WeeklyCommitment $commitment): void
     {
-        $user = $commitment->user;
-        $atasan = $user->atasan;
+        // Satu batch multi-KPI menghasilkan banyak baris, notifikasi cukup dikirim sekali
+        if ($commitment->batch_id && WeeklyCommitment::where('batch_id', $commitment->batch_id)->count() > 1) {
+            return;
+        }
 
-        if ($atasan) {
+        $user = $commitment->user;
+        $namaDivisi = $user->divisi->nama ?? '-';
+        $pesan = "{$user->nama} ({$namaDivisi}) telah mengisi Weekly Commitment.";
+
+        if ($user->atasan) {
             NotificationWpm::create([
-                'user_id' => $atasan->id,
+                'user_id' => $user->atasan->id,
                 'type' => 'commitment_submitted',
-                'message' => "{$user->nama} ({$user->divisi->nama}) telah mengisi Weekly Commitment.",
+                'message' => $pesan,
                 'is_read' => false,
                 'sent_at' => now(),
             ]);
         }
 
-        // Juga beri tahu semua HRD
-        \App\Models\User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))
+        // Semua HRD, kecuali kalau yang mengisi adalah HRD itu sendiri
+        User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))
+            ->where('id', '!=', $user->id)
             ->get()
-            ->each(function ($hrd) use ($user) {
+            ->each(function ($hrd) use ($pesan) {
                 NotificationWpm::create([
                     'user_id' => $hrd->id,
                     'type' => 'commitment_submitted',
-                    'message' => "{$user->nama} ({$user->divisi->nama}) telah mengisi Weekly Commitment.",
+                    'message' => $pesan,
                     'is_read' => false,
                     'sent_at' => now(),
                 ]);

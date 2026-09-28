@@ -19,6 +19,9 @@
                 @php
                     $menus = [
                         ['label' => 'Dashboard', 'route' => 'hrd.dashboard'],
+                        ['label' => 'Weekly Commitment', 'route' => 'hrd.weekly-commitment.create'],
+                        ['label' => 'Weekly Progress', 'route' => 'hrd.weekly-progress.create'],
+                        ['label' => 'Self Review', 'route' => 'hrd.self-review.create'],
                         ['label' => 'Monitoring PIC', 'route' => 'hrd.monitoring-pic.index'],
                         ['label' => 'Underperform & Alert', 'route' => 'hrd.underperform.index'],
                         ['label' => 'Trend Performance', 'route' => 'hrd.trend-performance.index'],
