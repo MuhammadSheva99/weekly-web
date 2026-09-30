@@ -51,7 +51,7 @@ class IzinController extends Controller
             ? $request->file('lampiran')->store('izin-lampiran', 'public')
             : null;
 
-        IzinRequest::create([
+        $izin = IzinRequest::create([
             'user_id' => $user->id,
             'jenis_izin' => $data['jenis_izin'],
             'tanggal' => $data['tanggal'],
@@ -63,9 +63,13 @@ class IzinController extends Controller
             'disetujui_oleh' => $user->id,
         ]);
 
+        $jamMulai = \Carbon\Carbon::parse($data['jam_mulai'])->format('H:i');
+        $estimasi = $data['estimasi_kembali'] ? \Carbon\Carbon::parse($data['estimasi_kembali'])->format('H:i') : null;
+        $infoWaktu = $izin->tanggal->translatedFormat('l, d F Y').', jam '.$jamMulai.($estimasi ? " s/d {$estimasi}" : '');
+
         NotificationService::send(
             $user, 'izin_disetujui',
-            "Pengajuan izin Anda ({$data['jenis_izin']}) otomatis disetujui.",
+            "Pengajuan izin Anda ({$data['jenis_izin']}) pada {$infoWaktu} otomatis disetujui.",
         );
 
         return redirect()->route('hrd.izin.dashboard')->with('status', 'Pengajuan izin berhasil dikirim.');

@@ -25,7 +25,6 @@
             <label class="block text-sm text-gray-600 mb-1">Jenis cuti</label>
             <select name="jenis_cuti" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm">
                 <option value="">Pilih jenis cuti</option>
-                <option value="Cuti tahunan">Cuti tahunan</option>
                 <option value="Izin">Izin</option>
                 <option value="Cuti sakit">Cuti sakit</option>
                 <option value="Cuti melahirkan">Cuti melahirkan</option>

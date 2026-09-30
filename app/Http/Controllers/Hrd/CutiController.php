@@ -19,6 +19,7 @@ class CutiController extends Controller
         $terpakai = CutiRequest::where('user_id', $user->id)
             ->where('status', 'disetujui')
             ->whereYear('tanggal_mulai', $tahun)
+            ->memotongKuota()
             ->sum('jumlah_hari');
 
         $terakhir = CutiRequest::where('user_id', $user->id)
@@ -42,6 +43,7 @@ class CutiController extends Controller
         $terpakai = CutiRequest::where('user_id', $user->id)
             ->where('status', 'disetujui')
             ->whereYear('tanggal_mulai', $tahun)
+            ->memotongKuota()
             ->sum('jumlah_hari');
 
         $menunggu = CutiRequest::where('user_id', $user->id)->where('status', 'menunggu')->count();
@@ -69,6 +71,10 @@ class CutiController extends Controller
         $selesai = \Carbon\Carbon::parse($data['tanggal_selesai']);
         $jumlahHari = $mulai->diffInDays($selesai) + 1;
 
+        $rentangTanggal = $mulai->isSameDay($selesai)
+            ? $mulai->translatedFormat('l, d F Y')
+            : $mulai->translatedFormat('l, d F Y').' s/d '.$selesai->translatedFormat('l, d F Y');
+
         $user = Auth::user();
         $isHrd = $user->role->nama === 'HRD';
 
@@ -94,7 +100,7 @@ class CutiController extends Controller
             NotificationWpm::create([
                 'user_id' => $user->id,
                 'type' => 'cuti_disetujui',
-                'message' => "Pengajuan cuti Anda ({$data['jenis_cuti']}, {$jumlahHari} hari) otomatis disetujui.",
+                'message' => "Pengajuan cuti Anda ({$data['jenis_cuti']}, {$rentangTanggal}, {$jumlahHari} hari) otomatis disetujui.",
                 'is_read' => false,
                 'sent_at' => now(),
             ]);
@@ -102,7 +108,7 @@ class CutiController extends Controller
             NotificationWpm::create([
                 'user_id' => $user->atasan->id,
                 'type' => 'cuti_menunggu',
-                'message' => "{$user->nama} mengajukan {$data['jenis_cuti']} ({$jumlahHari} hari), menunggu persetujuan Anda.",
+                'message' => "{$user->nama} mengajukan {$data['jenis_cuti']} pada {$rentangTanggal} ({$jumlahHari} hari), menunggu persetujuan Anda.",
                 'is_read' => false,
                 'sent_at' => now(),
             ]);

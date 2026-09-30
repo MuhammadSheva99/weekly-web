@@ -6,9 +6,23 @@
     <h1 class="text-3xl font-bold text-gray-900">Cuti Karyawan</h1>
     <p class="text-gray-500 mt-1 mb-6">Tren Bulanan Perusahaan Dan Rencana Perbaikan</p>
 
-    @include('management.cuti-karyawan._tabs')
-
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Karyawan yang mengajukan cuti</h2>
+    <form method="GET" class="flex flex-wrap items-end gap-4 mb-6">
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Periode</label>
+            <input type="month" name="periode" value="{{ $periode }}"
+                   class="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                   onchange="this.form.submit()">
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Divisi</label>
+            <select name="divisi_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="this.form.submit()">
+                <option value="">Semua Divisi</option>
+                @foreach ($divisiList as $d)
+                    <option value="{{ $d->id }}" @selected(request('divisi_id') == $d->id)>{{ $d->nama }}</option>
+                @endforeach
+            </select>
+        </div>
+    </form>
 
     <div class="space-y-4">
         @forelse ($daftar as $c)
@@ -37,8 +51,8 @@
                         <p class="font-medium text-gray-800">{{ $c->tanggal_selesai->format('d/m/Y') }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-400">Keterangan</p>
-                        <p class="font-medium text-gray-800">{{ $c->keterangan ?? '-' }}</p>
+                        <p class="text-xs text-gray-400">Sisa Kuota</p>
+                        <p class="font-medium text-gray-800">{{ $c->sisa_cuti }} hari</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-400">Lampiran</p>
@@ -50,14 +64,31 @@
                     </div>
                 </div>
 
-                <div class="w-28 shrink-0 text-sm">
-                    <p class="text-xs text-gray-400">Disetujui oleh</p>
-                    <p class="font-medium text-gray-800">{{ $c->user->atasan->nama ?? '-' }}</p>
+                <div class="w-32 shrink-0 text-sm">
+                    <p class="text-xs text-gray-400">Status</p>
+                    @php
+                        $statusLabel = match($c->status) {
+                            'menunggu_atasan' => 'Menunggu Atasan',
+                            'menunggu_hrd' => 'Menunggu HRD',
+                            'disetujui' => 'Disetujui',
+                            'ditolak' => 'Ditolak',
+                            default => $c->status,
+                        };
+                        $statusColor = match($c->status) {
+                            'disetujui' => 'text-green-700',
+                            'ditolak' => 'text-red-600',
+                            default => 'text-amber-600',
+                        };
+                    @endphp
+                    <p class="font-medium {{ $statusColor }}">{{ $statusLabel }}</p>
+                    @if ($c->status === 'disetujui' && $c->disetujuiOleh)
+                        <p class="text-xs text-gray-400 mt-0.5">oleh {{ $c->disetujuiOleh->nama }}</p>
+                    @endif
                 </div>
             </div>
         @empty
             <div class="bg-white border border-gray-200 rounded-2xl p-10 text-center text-gray-400">
-                Tidak ada pengajuan cuti yang menunggu.
+                Tidak ada pengajuan cuti pada periode ini.
             </div>
         @endforelse
     </div>

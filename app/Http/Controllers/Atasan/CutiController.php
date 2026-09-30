@@ -16,7 +16,7 @@ class CutiController extends Controller
         $user = Auth::user();
         $tahun = now()->year;
 
-        $terpakai = CutiRequest::where('user_id', $user->id)->where('status', 'disetujui')->whereYear('tanggal_mulai', $tahun)->sum('jumlah_hari');
+        $terpakai = CutiRequest::where('user_id', $user->id)->where('status', 'disetujui')->whereYear('tanggal_mulai', $tahun)->memotongKuota()->sum('jumlah_hari');
         $terakhir = CutiRequest::where('user_id', $user->id)->orderByDesc('created_at')->limit(5)->get();
 
         return view('atasan.cuti.dashboard', [
@@ -32,7 +32,7 @@ class CutiController extends Controller
         $user = Auth::user();
         $tahun = now()->year;
 
-        $terpakai = CutiRequest::where('user_id', $user->id)->where('status', 'disetujui')->whereYear('tanggal_mulai', $tahun)->sum('jumlah_hari');
+        $terpakai = CutiRequest::where('user_id', $user->id)->where('status', 'disetujui')->whereYear('tanggal_mulai', $tahun)->memotongKuota()->sum('jumlah_hari');
         $menunggu = CutiRequest::where('user_id', $user->id)->where('status', 'menunggu_hrd')->count();
 
         return view('atasan.cuti.ajukan', [
@@ -57,6 +57,10 @@ class CutiController extends Controller
         $selesai = \Carbon\Carbon::parse($data['tanggal_selesai']);
         $jumlahHari = $mulai->diffInDays($selesai) + 1;
 
+        $rentangTanggal = $mulai->isSameDay($selesai)
+            ? $mulai->translatedFormat('l, d F Y')
+            : $mulai->translatedFormat('l, d F Y').' s/d '.$selesai->translatedFormat('l, d F Y');
+
         $user = Auth::user();
         $lampiranPath = $request->hasFile('lampiran') ? $request->file('lampiran')->store('cuti-lampiran', 'public') : null;
 
@@ -71,10 +75,10 @@ class CutiController extends Controller
             'status' => 'menunggu_hrd',
         ]);
 
-        User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $data, $jumlahHari) {
+        User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $data, $jumlahHari, $rentangTanggal) {
             NotificationService::send(
                 $hrd, 'cuti_menunggu',
-                "{$user->nama} (Atasan) mengajukan {$data['jenis_cuti']} ({$jumlahHari} hari), menunggu persetujuan Anda.",
+                "{$user->nama} (Atasan) mengajukan {$data['jenis_cuti']} pada {$rentangTanggal} ({$jumlahHari} hari), menunggu persetujuan Anda.",
                 email: true, emailJudul: 'Pengajuan Cuti Menunggu Persetujuan'
             );
         });

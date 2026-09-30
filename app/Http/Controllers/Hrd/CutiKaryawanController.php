@@ -29,10 +29,20 @@ class CutiKaryawanController extends Controller
             'disetujui_oleh' => Auth::id(),
         ]);
 
+        $rentangTanggal = $cuti->tanggal_mulai->isSameDay($cuti->tanggal_selesai)
+            ? $cuti->tanggal_mulai->translatedFormat('l, d F Y')
+            : $cuti->tanggal_mulai->translatedFormat('l, d F Y').' s/d '.$cuti->tanggal_selesai->translatedFormat('l, d F Y');
+
         NotificationService::send(
             $cuti->user, 'cuti_disetujui',
-            "Pengajuan {$cuti->jenis_cuti} Anda ({$cuti->jumlah_hari} hari) telah disetujui.",
+            "Pengajuan {$cuti->jenis_cuti} Anda pada {$rentangTanggal} ({$cuti->jumlah_hari} hari) telah disetujui.",
             email: true, emailJudul: 'Pengajuan Cuti Disetujui'
+        );
+
+        NotificationService::broadcastPersetujuan(
+            $cuti->user, Auth::user(), 'cuti_disetujui',
+            "{$cuti->user->nama} disetujui cutinya ({$cuti->jenis_cuti}) pada {$rentangTanggal} ({$cuti->jumlah_hari} hari).",
+            'Pemberitahuan Cuti Karyawan Disetujui'
         );
 
         return back()->with('status', 'Cuti berhasil disetujui.');
@@ -48,9 +58,13 @@ class CutiKaryawanController extends Controller
             'alasan_penolakan' => $request->alasan_penolakan,
         ]);
 
+        $rentangTanggal = $cuti->tanggal_mulai->isSameDay($cuti->tanggal_selesai)
+            ? $cuti->tanggal_mulai->translatedFormat('l, d F Y')
+            : $cuti->tanggal_mulai->translatedFormat('l, d F Y').' s/d '.$cuti->tanggal_selesai->translatedFormat('l, d F Y');
+
         NotificationService::send(
             $cuti->user, 'cuti_ditolak',
-            "Pengajuan {$cuti->jenis_cuti} Anda ditolak.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
+            "Pengajuan {$cuti->jenis_cuti} Anda pada {$rentangTanggal} ditolak.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
             email: true, emailJudul: 'Pengajuan Cuti Ditolak'
         );
 
@@ -76,6 +90,7 @@ class CutiKaryawanController extends Controller
             $terpakai = CutiRequest::where('user_id', $k->id)
                 ->where('status', 'disetujui')
                 ->whereYear('tanggal_mulai', $tahun)
+                ->memotongKuota()
                 ->sum('jumlah_hari');
 
             $riwayatBulanIni = CutiRequest::where('user_id', $k->id)
@@ -108,6 +123,7 @@ class CutiKaryawanController extends Controller
         $terpakai = CutiRequest::where('user_id', $karyawan->id)
             ->where('status', 'disetujui')
             ->whereYear('tanggal_mulai', $bulan->year)
+            ->memotongKuota()
             ->sum('jumlah_hari');
 
         $riwayat = CutiRequest::where('user_id', $karyawan->id)

@@ -52,7 +52,7 @@ class IzinController extends Controller
             ? $request->file('lampiran')->store('izin-lampiran', 'public')
             : null;
 
-        IzinRequest::create([
+        $izin = IzinRequest::create([
             'user_id' => $user->id,
             'jenis_izin' => $data['jenis_izin'],
             'tanggal' => $data['tanggal'],
@@ -65,10 +65,14 @@ class IzinController extends Controller
 
         $label = IzinRequest::JENIS_IZIN[$data['jenis_izin']];
 
-        User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $label) {
+        $jamMulai = \Carbon\Carbon::parse($data['jam_mulai'])->format('H:i');
+        $estimasi = $data['estimasi_kembali'] ? \Carbon\Carbon::parse($data['estimasi_kembali'])->format('H:i') : null;
+        $infoWaktu = $izin->tanggal->translatedFormat('l, d F Y').', jam '.$jamMulai.($estimasi ? " s/d {$estimasi}" : '');
+
+        User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $label, $infoWaktu) {
             NotificationService::send(
                 $hrd, 'izin_menunggu',
-                "{$user->nama} (Atasan) mengajukan {$label}, menunggu persetujuan Anda.",
+                "{$user->nama} (Atasan) mengajukan {$label} pada {$infoWaktu}, menunggu persetujuan Anda.",
                 email: true, emailJudul: 'Pengajuan Izin Menunggu Persetujuan'
             );
         });

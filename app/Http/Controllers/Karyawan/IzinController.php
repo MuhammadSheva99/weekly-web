@@ -75,10 +75,13 @@ class IzinController extends Controller
 
         $label = IzinRequest::JENIS_IZIN[$data['jenis_izin']];
 
+        $jamMulai = \Carbon\Carbon::parse($data['jam_mulai'])->format('H:i');
+        $estimasi = $data['estimasi_kembali'] ? \Carbon\Carbon::parse($data['estimasi_kembali'])->format('H:i') : null;
+        $infoWaktu = $izin->tanggal->translatedFormat('l, d F Y').', jam '.$jamMulai.($estimasi ? " s/d {$estimasi}" : '');
+
         if ($isTerlambat) {
             // Notifikasi informasi saja, bukan permintaan approval
-            $jamMulai = \Carbon\Carbon::parse($data['jam_mulai'])->format('H:i');
-            $pesan = "{$user->nama} melapor {$label} pada {$izin->tanggal->format('d/m/Y')} jam {$jamMulai}. Tidak perlu persetujuan.";
+            $pesan = "{$user->nama} melapor {$label} pada {$infoWaktu}. Tidak perlu persetujuan.";
 
             if ($user->atasan) {
                 NotificationService::send(
@@ -98,14 +101,14 @@ class IzinController extends Controller
         } elseif ($statusAwal === 'menunggu_atasan') {
             NotificationService::send(
                 $user->atasan, 'izin_menunggu',
-                "{$user->nama} mengajukan {$label}, menunggu persetujuan Anda.",
+                "{$user->nama} mengajukan {$label} pada {$infoWaktu}, menunggu persetujuan Anda.",
                 email: true, emailJudul: 'Pengajuan Izin Menunggu Persetujuan'
             );
         } else {
-            User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $label) {
+            User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $label, $infoWaktu) {
                 NotificationService::send(
                     $hrd, 'izin_menunggu',
-                    "{$user->nama} mengajukan {$label}, menunggu persetujuan Anda.",
+                    "{$user->nama} mengajukan {$label} pada {$infoWaktu}, menunggu persetujuan Anda.",
                     email: true, emailJudul: 'Pengajuan Izin Menunggu Persetujuan'
                 );
             });

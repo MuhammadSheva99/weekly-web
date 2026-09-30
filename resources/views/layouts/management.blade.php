@@ -20,7 +20,8 @@
                     $menus = [
                         ['label' => 'Dashboard', 'route' => 'management.dashboard'],
                         ['label' => 'Trend & Performance', 'route' => 'management.trend.index'],
-                        ['label' => 'Cuti Karyawan', 'route' => 'management.cuti-karyawan.pengajuan'],
+                        ['label' => 'Cuti Karyawan', 'route' => 'management.cuti-karyawan.index'],
+                        ['label' => 'Izin Karyawan', 'route' => 'management.izin-karyawan.index'],
                     ];
                 @endphp
 

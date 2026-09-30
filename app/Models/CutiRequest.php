@@ -10,6 +10,8 @@ class CutiRequest extends Model
 {
     use HasUuids;
 
+    public const JENIS_BEBAS_KUOTA_JIKA_ADA_LAMPIRAN = ['Cuti sakit', 'Cuti melahirkan'];
+
     protected $fillable = [
         'user_id', 'jenis_cuti', 'tanggal_mulai', 'tanggal_selesai',
         'jumlah_hari', 'keterangan', 'lampiran_path', 'disetujui_oleh',
@@ -39,5 +41,13 @@ class CutiRequest extends Model
     public function atasanApprovedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'atasan_approved_by');
+    }
+
+    public function scopeMemotongKuota($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNotIn('jenis_cuti', self::JENIS_BEBAS_KUOTA_JIKA_ADA_LAMPIRAN)
+              ->orWhereNull('lampiran_path');
+        });
     }
 }

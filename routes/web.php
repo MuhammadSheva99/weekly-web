@@ -25,10 +25,13 @@ use App\Http\Controllers\Hrd\IzinController as HrdIzinController;
 use App\Http\Controllers\Hrd\IzinKaryawanController;
 use App\Http\Controllers\Hrd\CompanyDocumentController;
 use App\Http\Controllers\Hrd\SuratPeringatanController;
+use App\Http\Controllers\Hrd\KaryawanController as HrdKaryawanController;
 
 use App\Http\Controllers\Management\DashboardController as ManagementDashboardController;
 use App\Http\Controllers\Management\TrendImprovementController;
 use App\Http\Controllers\Management\CutiKaryawanController as ManagementCutiKaryawanController;
+use App\Http\Controllers\Management\IzinKaryawanController as ManagementIzinKaryawanController;
+use App\Http\Controllers\Management\SuratPeringatanController as ManagementSuratPeringatanController;
 
 use App\Http\Controllers\Atasan\DashboardController as AtasanDashboardController;
 use App\Http\Controllers\Atasan\WeeklyCommitmentController;
@@ -164,7 +167,7 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::post('/', [HrdSelfReviewController::class, 'store'])->name('store');
         Route::put('/', [HrdSelfReviewController::class, 'update'])->name('update');
     });
-    
+
     Route::get('/monitoring-pic', [MonitoringPicController::class, 'index'])->name('monitoring-pic.index');
     Route::get('/underperform', [UnderperformController::class, 'index'])->name('underperform.index');
     Route::get('/trend-performance', [TrendPerformanceController::class, 'index'])->name('trend-performance.index');
@@ -184,7 +187,7 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::get('/riwayat', [CutiController::class, 'riwayat'])->name('riwayat');
         Route::get('/notifikasi', [CutiController::class, 'notifikasi'])->name('notifikasi');
     });
-    
+
     Route::prefix('cuti-karyawan')->name('cuti-karyawan.')->group(function () {
         Route::get('/pengajuan', [CutiKaryawanController::class, 'pengajuan'])->name('pengajuan');
         Route::post('/{cuti}/approve', [CutiKaryawanController::class, 'approve'])->name('approve');
@@ -225,6 +228,16 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::get('/{sp}/download', [SuratPeringatanController::class, 'download'])->name('download');
         Route::delete('/{sp}/destroy', [SuratPeringatanController::class, 'destroy'])->name('destroy');
     });
+
+    // Data Karyawan (baru) — CRUD data karyawan HRD, terpisah dari tabel users
+    Route::prefix('karyawan')->name('karyawan.')->group(function () {
+        Route::get('/', [HrdKaryawanController::class, 'index'])->name('index');
+        Route::get('/tambah', [HrdKaryawanController::class, 'create'])->name('create');
+        Route::post('/', [HrdKaryawanController::class, 'store'])->name('store');
+        Route::get('/{karyawan}/edit', [HrdKaryawanController::class, 'edit'])->name('edit');
+        Route::put('/{karyawan}', [HrdKaryawanController::class, 'update'])->name('update');
+        Route::delete('/{karyawan}', [HrdKaryawanController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::middleware(['auth', 'role:Management'])->prefix('management')->name('management.')->group(function () {
@@ -234,8 +247,15 @@ Route::middleware(['auth', 'role:Management'])->prefix('management')->name('mana
     Route::get('/trend', [TrendImprovementController::class, 'index'])->name('trend.index');
 
     Route::prefix('cuti-karyawan')->name('cuti-karyawan.')->group(function () {
-        Route::get('/', [ManagementCutiKaryawanController::class, 'pengajuan'])->name('pengajuan');
-        Route::get('/riwayat', [ManagementCutiKaryawanController::class, 'riwayat'])->name('riwayat');
+        Route::get('/', [ManagementCutiKaryawanController::class, 'index'])->name('index');
+    });
+
+    Route::prefix('izin-karyawan')->name('izin-karyawan.')->group(function () {
+        Route::get('/', [ManagementIzinKaryawanController::class, 'index'])->name('index');
+    });
+
+    Route::prefix('sp-karyawan')->name('sp-karyawan.')->group(function () {
+        Route::get('/', [ManagementSuratPeringatanController::class, 'index'])->name('index');
     });
 });
 

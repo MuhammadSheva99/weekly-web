@@ -19,6 +19,7 @@ class CutiController extends Controller
         $terpakai = CutiRequest::where('user_id', $user->id)
             ->where('status', 'disetujui')
             ->whereYear('tanggal_mulai', $tahun)
+            ->memotongKuota()
             ->sum('jumlah_hari');
 
         $cutiBulanIni = CutiRequest::where('user_id', $user->id)
@@ -43,6 +44,7 @@ class CutiController extends Controller
         $terpakai = CutiRequest::where('user_id', $user->id)
             ->where('status', 'disetujui')
             ->whereYear('tanggal_mulai', $tahun)
+            ->memotongKuota()
             ->sum('jumlah_hari');
 
         $menunggu = CutiRequest::where('user_id', $user->id)
@@ -72,6 +74,10 @@ class CutiController extends Controller
         $selesai = \Carbon\Carbon::parse($data['tanggal_selesai']);
         $jumlahHari = $mulai->diffInDays($selesai) + 1;
 
+        $rentangTanggal = $mulai->isSameDay($selesai)
+            ? $mulai->translatedFormat('l, d F Y')
+            : $mulai->translatedFormat('l, d F Y').' s/d '.$selesai->translatedFormat('l, d F Y');
+
         $user = Auth::user();
         $statusAwal = $user->atasan_id ? 'menunggu_atasan' : 'menunggu_hrd';
 
@@ -93,14 +99,14 @@ class CutiController extends Controller
         if ($statusAwal === 'menunggu_atasan') {
             NotificationService::send(
                 $user->atasan, 'cuti_menunggu',
-                "{$user->nama} mengajukan {$data['jenis_cuti']} ({$jumlahHari} hari), menunggu persetujuan Anda.",
+                "{$user->nama} mengajukan {$data['jenis_cuti']} pada {$rentangTanggal} ({$jumlahHari} hari), menunggu persetujuan Anda.",
                 email: true, emailJudul: 'Pengajuan Cuti Menunggu Persetujuan'
             );
         } else {
-            User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $data, $jumlahHari) {
+            User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($user, $data, $jumlahHari, $rentangTanggal) {
                 NotificationService::send(
                     $hrd, 'cuti_menunggu',
-                    "{$user->nama} mengajukan {$data['jenis_cuti']} ({$jumlahHari} hari), menunggu persetujuan Anda.",
+                    "{$user->nama} mengajukan {$data['jenis_cuti']} pada {$rentangTanggal} ({$jumlahHari} hari), menunggu persetujuan Anda.",
                     email: true, emailJudul: 'Pengajuan Cuti Menunggu Persetujuan'
                 );
             });

@@ -27,22 +27,28 @@ class IzinApprovalController extends Controller
         abort_unless($izin->user->atasan_id === Auth::id(), 403);
 
         $izin->update([
-            'status' => 'menunggu_hrd',
+            'status' => 'disetujui',
             'atasan_approved_by' => Auth::id(),
             'atasan_approved_at' => now(),
+            'disetujui_oleh' => Auth::id(),
         ]);
 
         $label = $izin->label_jenis_izin;
+        $infoWaktu = $this->formatInfoWaktu($izin);
 
-        User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($izin, $label) {
-            NotificationService::send(
-                $hrd, 'izin_menunggu',
-                "{$izin->user->nama} mengajukan {$label}, sudah disetujui atasan, menunggu persetujuan Anda.",
-                email: true, emailJudul: 'Pengajuan Izin Menunggu Persetujuan HRD'
-            );
-        });
+        NotificationService::send(
+            $izin->user, 'izin_disetujui',
+            "Pengajuan {$label} Anda pada {$infoWaktu} telah disetujui.",
+            email: true, emailJudul: 'Pengajuan Izin Disetujui'
+        );
 
-        return back()->with('status', 'Pengajuan diteruskan ke HRD.');
+        NotificationService::broadcastPersetujuan(
+            $izin->user, Auth::user(), 'izin_disetujui',
+            "{$izin->user->nama} disetujui izinnya ({$label}) pada {$infoWaktu}.",
+            'Pemberitahuan Izin Karyawan Disetujui'
+        );
+
+        return back()->with('status', 'Izin berhasil disetujui.');
     }
 
     public function reject(Request $request, IzinRequest $izin)
@@ -57,13 +63,23 @@ class IzinApprovalController extends Controller
             'alasan_penolakan' => $request->alasan_penolakan,
         ]);
 
+        $infoWaktu = $this->formatInfoWaktu($izin);
+
         NotificationService::send(
             $izin->user, 'izin_ditolak',
-            "Pengajuan {$izin->label_jenis_izin} Anda ditolak oleh atasan.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
+            "Pengajuan {$izin->label_jenis_izin} Anda pada {$infoWaktu} ditolak oleh atasan.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
             email: true, emailJudul: 'Pengajuan Izin Ditolak'
         );
 
         return back()->with('status', 'Izin berhasil ditolak.');
+    }
+
+    private function formatInfoWaktu(IzinRequest $izin): string
+    {
+        $jamMulai = \Carbon\Carbon::parse($izin->jam_mulai)->format('H:i');
+        $estimasi = $izin->estimasi_kembali ? \Carbon\Carbon::parse($izin->estimasi_kembali)->format('H:i') : null;
+
+        return $izin->tanggal->translatedFormat('l, d F Y').', jam '.$jamMulai.($estimasi ? " s/d {$estimasi}" : '');
     }
 
     public function riwayat(Request $request)

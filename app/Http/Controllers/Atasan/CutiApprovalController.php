@@ -27,20 +27,29 @@ class CutiApprovalController extends Controller
         abort_unless($cuti->user->atasan_id === Auth::id(), 403);
 
         $cuti->update([
-            'status' => 'menunggu_hrd',
+            'status' => 'disetujui',
             'atasan_approved_by' => Auth::id(),
             'atasan_approved_at' => now(),
+            'disetujui_oleh' => Auth::id(),
         ]);
 
-        User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($cuti) {
-            NotificationService::send(
-                $hrd, 'cuti_menunggu',
-                "{$cuti->user->nama} mengajukan {$cuti->jenis_cuti} ({$cuti->jumlah_hari} hari), sudah disetujui atasan, menunggu persetujuan Anda.",
-                email: true, emailJudul: 'Pengajuan Cuti Menunggu Persetujuan HRD'
-            );
-        });
+        $rentangTanggal = $cuti->tanggal_mulai->isSameDay($cuti->tanggal_selesai)
+            ? $cuti->tanggal_mulai->translatedFormat('l, d F Y')
+            : $cuti->tanggal_mulai->translatedFormat('l, d F Y').' s/d '.$cuti->tanggal_selesai->translatedFormat('l, d F Y');
 
-        return back()->with('status', 'Pengajuan diteruskan ke HRD.');
+        NotificationService::send(
+            $cuti->user, 'cuti_disetujui',
+            "Pengajuan {$cuti->jenis_cuti} Anda pada {$rentangTanggal} ({$cuti->jumlah_hari} hari) telah disetujui.",
+            email: true, emailJudul: 'Pengajuan Cuti Disetujui'
+        );
+
+        NotificationService::broadcastPersetujuan(
+            $cuti->user, Auth::user(), 'cuti_disetujui',
+            "{$cuti->user->nama} disetujui cutinya ({$cuti->jenis_cuti}) pada {$rentangTanggal} ({$cuti->jumlah_hari} hari).",
+            'Pemberitahuan Cuti Karyawan Disetujui'
+        );
+
+        return back()->with('status', 'Cuti berhasil disetujui.');
     }
 
     public function reject(Request $request, CutiRequest $cuti)
@@ -55,9 +64,13 @@ class CutiApprovalController extends Controller
             'alasan_penolakan' => $request->alasan_penolakan,
         ]);
 
+        $rentangTanggal = $cuti->tanggal_mulai->isSameDay($cuti->tanggal_selesai)
+            ? $cuti->tanggal_mulai->translatedFormat('l, d F Y')
+            : $cuti->tanggal_mulai->translatedFormat('l, d F Y').' s/d '.$cuti->tanggal_selesai->translatedFormat('l, d F Y');
+
         NotificationService::send(
             $cuti->user, 'cuti_ditolak',
-            "Pengajuan {$cuti->jenis_cuti} Anda ditolak oleh atasan.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
+            "Pengajuan {$cuti->jenis_cuti} Anda pada {$rentangTanggal} ditolak oleh atasan.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
             email: true, emailJudul: 'Pengajuan Cuti Ditolak'
         );
 
@@ -77,6 +90,7 @@ class CutiApprovalController extends Controller
             $terpakai = CutiRequest::where('user_id', $anggota->id)
                 ->where('status', 'disetujui')
                 ->whereYear('tanggal_mulai', $tahun)
+                ->memotongKuota()
                 ->sum('jumlah_hari');
 
             $riwayatBulanIni = CutiRequest::where('user_id', $anggota->id)
@@ -110,6 +124,7 @@ class CutiApprovalController extends Controller
         $terpakai = CutiRequest::where('user_id', $user->id)
             ->where('status', 'disetujui')
             ->whereYear('tanggal_mulai', $bulan->year)
+            ->memotongKuota()
             ->sum('jumlah_hari');
 
         $riwayat = CutiRequest::where('user_id', $user->id)
