@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\CompanyDocument;
 use App\Models\Divisi;
 use App\Models\NotificationWpm;
+use App\Models\SpRekomendasi;
 use App\Models\SuratPeringatan;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -57,12 +59,20 @@ class SuratPeringatanController extends Controller
 
     // ============ Menu "SP Karyawan" ============
 
-    public function terbitkanForm()
+    public function terbitkanForm(Request $request)
     {
+        $rekomendasi = null;
+        if ($request->filled('rekomendasi_id')) {
+            $rekomendasi = SpRekomendasi::with(['user', 'direkomendasikanOleh'])
+                ->where('status', 'menunggu')
+                ->find($request->rekomendasi_id);
+        }
+
         return view('hrd.sp-karyawan.terbitkan', [
             'allUsers' => User::whereHas('role', fn ($q) => $q->whereIn('nama', ['Karyawan', 'Atasan']))
                 ->orderBy('nama')
                 ->get(),
+            'rekomendasi' => $rekomendasi,
         ]);
     }
 
@@ -70,6 +80,36 @@ class SuratPeringatanController extends Controller
     public function riwayat(Request $request)
     {
         return view('hrd.sp-karyawan.riwayat', $this->riwayatData($request));
+    }
+
+    // Tab "Rekomendasi dari Atasan" di menu "SP Karyawan"
+    public function rekomendasiPengajuan()
+    {
+        $daftar = SpRekomendasi::where('status', 'menunggu')
+            ->with(['user.divisi', 'direkomendasikanOleh'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('hrd.sp-karyawan.rekomendasi', ['daftar' => $daftar]);
+    }
+
+    public function rekomendasiTolak(Request $request, SpRekomendasi $rekomendasi)
+    {
+        $request->validate(['alasan_penolakan' => 'nullable|string']);
+
+        $rekomendasi->update([
+            'status' => 'ditolak',
+            'diproses_oleh' => Auth::id(),
+            'alasan_penolakan' => $request->alasan_penolakan,
+        ]);
+
+        NotificationService::send(
+            $rekomendasi->direkomendasikanOleh, 'sp_rekomendasi_ditolak',
+            "Rekomendasi SP Anda untuk {$rekomendasi->user->nama} ({$rekomendasi->level_usulan}) ditolak HRD.".($request->alasan_penolakan ? " Alasan: {$request->alasan_penolakan}" : ''),
+            email: true, emailJudul: 'Rekomendasi SP Ditolak'
+        );
+
+        return back()->with('status', 'Rekomendasi SP berhasil ditolak.');
     }
 
     // Logic pengambilan data riwayat, dipakai bersama oleh 2 tab di atas
@@ -113,6 +153,7 @@ class SuratPeringatanController extends Controller
             'alasan' => 'required|string',
             'konsekuensi' => 'nullable|string',
             'tanggal_terbit' => 'required|date',
+            'rekomendasi_id' => 'nullable|exists:sp_rekomendasi,id',
         ]);
 
         $tanggalTerbit = Carbon::parse($data['tanggal_terbit']);
@@ -158,6 +199,17 @@ class SuratPeringatanController extends Controller
         $templateProcessor->saveAs($outputPath);
 
         $sp->update(['file_path' => 'surat-peringatan/'.$fileName]);
+
+        if (! empty($data['rekomendasi_id'])) {
+            $rekomendasi = SpRekomendasi::find($data['rekomendasi_id']);
+            if ($rekomendasi && $rekomendasi->status === 'menunggu') {
+                $rekomendasi->update([
+                    'status' => 'diterbitkan',
+                    'diproses_oleh' => Auth::id(),
+                    'surat_peringatan_id' => $sp->id,
+                ]);
+            }
+        }
 
         NotificationWpm::create([
             'user_id' => $sp->user_id,

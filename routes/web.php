@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\DivisiRoleController;
 use App\Http\Controllers\Admin\AssignKpiController;
+use App\Http\Controllers\Admin\CutiQuotaController;
+use App\Http\Controllers\Admin\CutiBersamaController;
 
 
 use App\Http\Controllers\Hrd\DashboardController as HrdDashboardController;
@@ -26,12 +28,19 @@ use App\Http\Controllers\Hrd\IzinKaryawanController;
 use App\Http\Controllers\Hrd\CompanyDocumentController;
 use App\Http\Controllers\Hrd\SuratPeringatanController;
 use App\Http\Controllers\Hrd\KaryawanController as HrdKaryawanController;
+use App\Http\Controllers\Hrd\CutiBersamaController as HrdCutiBersamaController;
+
 
 use App\Http\Controllers\Management\DashboardController as ManagementDashboardController;
 use App\Http\Controllers\Management\TrendImprovementController;
 use App\Http\Controllers\Management\CutiKaryawanController as ManagementCutiKaryawanController;
 use App\Http\Controllers\Management\IzinKaryawanController as ManagementIzinKaryawanController;
 use App\Http\Controllers\Management\SuratPeringatanController as ManagementSuratPeringatanController;
+use App\Http\Controllers\Management\KaryawanController;
+use App\Http\Controllers\Management\MonitoringKaryawanController;
+use App\Http\Controllers\Management\MonitoringDivisiController;
+
+
 
 use App\Http\Controllers\Atasan\DashboardController as AtasanDashboardController;
 use App\Http\Controllers\Atasan\WeeklyCommitmentController;
@@ -93,6 +102,16 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/assign-kpi', [AssignKpiController::class, 'index'])->name('assign-kpi.index');
     Route::post('/assign-kpi/divisi', [AssignKpiController::class, 'storeDivisi'])->name('assign-kpi.store-divisi');
     Route::post('/assign-kpi/individu', [AssignKpiController::class, 'storeIndividu'])->name('assign-kpi.store-individu');
+
+    Route::prefix('cuti')->name('cuti.')->group(function () {
+        Route::get('/', [CutiQuotaController::class, 'index'])->name('index');
+        Route::put('/{user}', [CutiQuotaController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('cuti-bersama')->name('cuti-bersama.')->group(function () {
+        Route::get('/', [CutiBersamaController::class, 'create'])->name('create');
+        Route::post('/', [CutiBersamaController::class, 'store'])->name('store');
+    });
 });
 
 
@@ -197,6 +216,11 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
 
     });
 
+    Route::prefix('cuti-bersama')->name('cuti-bersama.')->group(function () {
+        Route::get('/', [HrdCutiBersamaController::class, 'create'])->name('create');
+        Route::post('/', [HrdCutiBersamaController::class, 'store'])->name('store');
+    });
+
     Route::prefix('izin')->name('izin.')->group(function () {
         Route::get('/', [HrdIzinController::class, 'dashboard'])->name('dashboard');
         Route::get('/ajukan', [HrdIzinController::class, 'createForm'])->name('ajukan');
@@ -225,11 +249,12 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::get('/terbitkan', [SuratPeringatanController::class, 'terbitkanForm'])->name('terbitkan');
         Route::post('/terbitkan', [SuratPeringatanController::class, 'store'])->name('store');
         Route::get('/riwayat', [SuratPeringatanController::class, 'riwayat'])->name('riwayat');
+        Route::get('/rekomendasi', [SuratPeringatanController::class, 'rekomendasiPengajuan'])->name('rekomendasi');
+        Route::post('/rekomendasi/{rekomendasi}/tolak', [SuratPeringatanController::class, 'rekomendasiTolak'])->name('rekomendasi.tolak');
         Route::get('/{sp}/download', [SuratPeringatanController::class, 'download'])->name('download');
         Route::delete('/{sp}/destroy', [SuratPeringatanController::class, 'destroy'])->name('destroy');
     });
 
-    // Data Karyawan (baru) — CRUD data karyawan HRD, terpisah dari tabel users
     Route::prefix('karyawan')->name('karyawan.')->group(function () {
         Route::get('/', [HrdKaryawanController::class, 'index'])->name('index');
         Route::get('/tambah', [HrdKaryawanController::class, 'create'])->name('create');
@@ -257,6 +282,15 @@ Route::middleware(['auth', 'role:Management'])->prefix('management')->name('mana
     Route::prefix('sp-karyawan')->name('sp-karyawan.')->group(function () {
         Route::get('/', [ManagementSuratPeringatanController::class, 'index'])->name('index');
     });
+
+    Route::get('/karyawan', [KaryawanController::class, 'index'])->name('management.karyawan.index');
+
+    Route::get('/monitoring-karyawan', [MonitoringKaryawanController::class, 'index'])
+    ->name('monitoring-karyawan.index');
+
+    Route::get('/monitoring-divisi', [MonitoringDivisiController::class, 'index'])
+    ->name('monitoring-divisi.index');
+
 });
 
 Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->group(function () {
@@ -326,6 +360,10 @@ Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->g
     Route::prefix('surat-peringatan')->name('surat-peringatan.')->group(function () {
         Route::get('/', [AtasanSuratPeringatanController::class, 'peraturan'])->name('peraturan');
         Route::get('/riwayat', [AtasanSuratPeringatanController::class, 'riwayat'])->name('riwayat');
+        Route::get('/riwayat-saya', [AtasanSuratPeringatanController::class, 'riwayatSaya'])->name('riwayat-saya');
+        Route::get('/rekomendasi', [AtasanSuratPeringatanController::class, 'rekomendasiForm'])->name('rekomendasi');
+        Route::post('/rekomendasi', [AtasanSuratPeringatanController::class, 'rekomendasiStore'])->name('rekomendasi.store');
+        Route::get('/rekomendasi/riwayat', [AtasanSuratPeringatanController::class, 'rekomendasiRiwayat'])->name('rekomendasi.riwayat');
     });
 });
 

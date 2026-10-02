@@ -7,4 +7,8 @@
        class="pb-3 text-sm font-medium {{ request()->routeIs('hrd.sp-karyawan.riwayat') ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-400' }}">
         Riwayat Pelanggaran
     </a>
+    <a href="{{ route('hrd.sp-karyawan.rekomendasi') }}"
+       class="pb-3 text-sm font-medium {{ request()->routeIs('hrd.sp-karyawan.rekomendasi') ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-400' }}">
+        Rekomendasi dari Atasan
+    </a>
 </div>

@@ -31,9 +31,9 @@ class KpiJabatanSeeder extends Seeder
                 ['Stock Information Accuracy', '%', 'minimize', 40],
             ],
             'Telesales' => [
-                ['Sales Revenue', 'Rupiah', 'maximize', 50],
-                ['Partner Acquisition', 'Angka', 'maximize', 25],
-                ['Lead Conversion Rate', '%', 'maximize', 25],
+                ['Sales Revenue', 'Rupiah', 'maximize', 45],
+                ['Partner Acquisition', 'Angka', 'maximize', 20],
+                ['Lead Conversion Rate', '%', 'maximize', 35],
             ],
             'Supervisor' => [
                 ['Sales Revenue', 'Rupiah', 'maximize', 30],

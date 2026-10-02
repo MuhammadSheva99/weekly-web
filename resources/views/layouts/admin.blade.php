@@ -21,7 +21,8 @@
                         ['label' => 'Manajemen User', 'route' => 'admin.users.index'],
                         ['label' => 'Divisi & Role', 'route' => 'admin.divisi-role.index'],
                         ['label' => 'Assign Target KPI', 'route' => 'admin.assign-kpi.index'],
-                        ['label' => 'Manajemen', 'route' => null],
+                        ['label' => 'Cuti Karyawan', 'route' => 'admin.cuti.index'],
+                        ['label' => 'Cuti Bersama', 'route' => 'admin.cuti-bersama.create'],
                     ];
                 @endphp
 

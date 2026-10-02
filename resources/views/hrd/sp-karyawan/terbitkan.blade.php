@@ -12,17 +12,27 @@
         <div class="mb-6 px-4 py-3 bg-red-50 text-red-700 rounded-lg text-sm">{{ $errors->first() }}</div>
     @endif
 
+    @if ($rekomendasi)
+        <div class="mb-6 px-4 py-3 bg-blue-50 border border-blue-100 text-blue-700 rounded-lg text-sm">
+            Form ini terisi dari rekomendasi <span class="font-semibold">{{ $rekomendasi->direkomendasikanOleh->nama }}</span> untuk <span class="font-semibold">{{ $rekomendasi->user->nama }}</span>. Anda tetap bisa mengubah isian sebelum menerbitkan.
+        </div>
+    @endif
+
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Terbitkan Surat Peringatan Baru</h2>
 
     <form method="POST" action="{{ route('hrd.sp-karyawan.store') }}" class="space-y-5 max-w-xl">
         @csrf
+
+        @if ($rekomendasi)
+            <input type="hidden" name="rekomendasi_id" value="{{ $rekomendasi->id }}">
+        @endif
 
         <div>
             <label class="block text-sm text-gray-600 mb-1">Karyawan</label>
             <select name="user_id" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm">
                 <option value="">Pilih karyawan</option>
                 @foreach ($allUsers as $u)
-                    <option value="{{ $u->id }}" {{ old('user_id') == $u->id ? 'selected' : '' }}>
+                    <option value="{{ $u->id }}" {{ old('user_id', $rekomendasi->user_id ?? null) == $u->id ? 'selected' : '' }}>
                         {{ $u->nama }} @if($u->divisi) — {{ $u->divisi->nama }} @endif
                     </option>
                 @endforeach
@@ -33,9 +43,9 @@
             <label class="block text-sm text-gray-600 mb-1">Level SP</label>
             <select name="level" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm">
                 <option value="">Pilih level</option>
-                <option value="SP1" {{ old('level') === 'SP1' ? 'selected' : '' }}>SP1</option>
-                <option value="SP2" {{ old('level') === 'SP2' ? 'selected' : '' }}>SP2</option>
-                <option value="SP3" {{ old('level') === 'SP3' ? 'selected' : '' }}>SP3</option>
+                <option value="SP1" {{ old('level', $rekomendasi->level_usulan ?? null) === 'SP1' ? 'selected' : '' }}>SP1</option>
+                <option value="SP2" {{ old('level', $rekomendasi->level_usulan ?? null) === 'SP2' ? 'selected' : '' }}>SP2</option>
+                <option value="SP3" {{ old('level', $rekomendasi->level_usulan ?? null) === 'SP3' ? 'selected' : '' }}>SP3</option>
             </select>
         </div>
 
@@ -49,7 +59,12 @@
         <div>
             <label class="block text-sm text-gray-600 mb-1">Alasan pelanggaran</label>
             <textarea name="alasan" rows="3" required
-                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm">{{ old('alasan') }}</textarea>
+                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm">{{ old('alasan', $rekomendasi->alasan ?? '') }}</textarea>
+            @if ($rekomendasi && $rekomendasi->lampiran_path)
+                <a href="{{ Storage::url($rekomendasi->lampiran_path) }}" target="_blank" class="inline-block mt-2 text-sm text-blue-600 hover:underline">
+                    Lihat lampiran dari atasan
+                </a>
+            @endif
         </div>
 
         <div>

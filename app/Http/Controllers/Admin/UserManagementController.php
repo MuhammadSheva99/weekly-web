@@ -3,10 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActualMingguan;
+use App\Models\ApprovalComment;
+use App\Models\AuditLog;
 use App\Models\Divisi;
+use App\Models\KpiPerformance;
 use App\Models\Role;
+use App\Models\TargetBulanan;
+use App\Models\TargetMingguan;
 use App\Models\User;
+use App\Models\WeeklyCommitment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
@@ -76,8 +84,26 @@ class UserManagementController extends Controller
 
     public function destroy(User $user)
     {
-        $user->delete();
+        DB::transaction(function () use ($user) {
+            $targetBulananIds = TargetBulanan::where('user_id', $user->id)->pluck('id');
+            $targetMingguanIds = TargetMingguan::whereIn('target_bulanan_id', $targetBulananIds)->pluck('id');
 
-        return back()->with('status', 'User berhasil dihapus.');
+
+            ActualMingguan::whereIn('target_mingguan_id', $targetMingguanIds)->delete();
+
+            ApprovalComment::where('commented_by', $user->id)->delete();
+
+            KpiPerformance::where('user_id', $user->id)->delete();
+
+            AuditLog::where('changed_by', $user->id)->delete();
+
+            WeeklyCommitment::where('user_id', $user->id)->delete();
+
+            TargetBulanan::where('user_id', $user->id)->delete();
+
+            $user->delete();
+        });
+
+        return back()->with('status', 'User berhasil dihapus beserta seluruh data terkait.');
     }
 }

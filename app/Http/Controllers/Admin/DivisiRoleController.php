@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Divisi;
+use App\Models\KpiMaster;
 use Illuminate\Http\Request;
 
 class DivisiRoleController extends Controller
@@ -75,6 +76,10 @@ class DivisiRoleController extends Controller
     {
         if ($divisi->users()->exists()) {
             return back()->with('error', 'Divisi tidak bisa dihapus karena masih punya anggota. Pindahkan dulu anggotanya ke divisi lain.');
+        }
+
+        if (KpiMaster::where('divisi_id', $divisi->id)->exists()) {
+            return back()->with('error', 'Divisi tidak bisa dihapus karena masih punya KPI Master yang terdaftar. Hapus atau pindahkan dulu KPI Master-nya ke divisi lain.');
         }
 
         $divisi->delete();
