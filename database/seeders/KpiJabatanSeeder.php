@@ -23,82 +23,105 @@ class KpiJabatanSeeder extends Seeder
             Divisi::firstOrCreate(['nama' => $nama]);
         }
 
-        // 2. Definisi KPI per divisi: [nama_kpi, satuan, pola, bobot]
+        // 2. Definisi KPI per divisi: [nama_kpi, satuan, pola, bobot, target]
+        //    Target diambil dari dokumen acuan KPI.xlsx (target per-divisi, berlaku
+        //    sama untuk semua orang di divisi itu, kecuali dicatat lain di komentar).
         $kpiPerDivisi = [
             'Admin Sales' => [
-                ['Sales Order Accuracy Rate', '%', 'maximize', 30],
-                ['Average Lead Time Order', 'Menit', 'maximize', 30],
-                ['Stock Information Accuracy', '%', 'minimize', 40],
+                ['Sales Order Accuracy Rate', '%', 'Maximize', 30, 1],
+                ['Average Lead Time Order', 'Menit', 'Maximize', 30, 20],
+                ['Stock Information Accuracy', '%', 'Minimize', 40, 1],
             ],
             'Telesales' => [
-                ['Sales Revenue', 'Rupiah', 'maximize', 45],
-                ['Partner Acquisition', 'Angka', 'maximize', 20],
-                ['Lead Conversion Rate', '%', 'maximize', 35],
+                ['Sales Revenue', 'Rupiah', 'Maximize', 45, 180000000],
+                ['Partner Acquisition', 'Angka', 'Maximize', 20, 36],
+                // Target awal di dokumen masih 0% (belum diisi) — dikonfirmasi jadi 20%.
+                ['Lead Conversion Rate', '%', 'Maximize', 35, 0.2],
             ],
+            // Target KPI Supervisor belum ada di dokumen acuan (tidak ada sheet-nya).
+            // Semua nilai_target di-set 0 sampai ada data asli dari lapangan.
             'Supervisor' => [
-                ['Sales Revenue', 'Rupiah', 'maximize', 30],
-                ['Partner Acquisition', 'Angka', 'maximize', 30],
-                ['Active Partner Rate', '%', 'maximize', 25],
-                ['Zero Complaint', 'Angka', 'minimize', 15],
-                ['Performance Tim', '%', 'maximize', 10],
+                ['Sales Revenue', 'Rupiah', 'Maximize', 30, 0],
+                ['Partner Acquisition', 'Angka', 'Maximize', 25, 0],
+                ['Active Partner Rate', '%', 'Maximize', 20, 0],
+                ['Zero Complaint', 'Angka', 'Minimize', 15, 0],
+                ['Performance Tim', '%', 'Maximize', 10, 0],
             ],
             'Team Leader Digital Marketing' => [
-                ['Average Revenue per Product', 'Rupiah', 'maximize', 15],
-                ['Harga Pokok Produksi', '%', 'maximize', 30],
-                ['ROAS', 'Angka', 'maximize', 25],
-                ['Lead Generation', 'Angka', 'maximize', 20],
-                ['Performance Tim', '%', 'maximize', 10],
+                // Belum diisi di dokumen -> dikonfirmasi tetap 0 untuk sekarang.
+                ['Average Revenue per Product', 'Rupiah', 'Maximize', 15, 0],
+                ['Harga Pokok Produksi', '%', 'Maximize', 30, 0.6],
+                // ROAS: dokumen nulis target "2000 per click" yang nggak konsisten
+                // sama definisi ROAS (rasio hasil/biaya iklan, bukan biaya per klik).
+                // Dikosongkan dulu (0) sampai jelas ini ROAS beneran atau sebenarnya CPC.
+                ['ROAS', 'Angka', 'Maximize', 25, 0],
+                ['Lead Generation', 'Angka', 'Maximize', 20, 2000],
+                ['Performance Tim', '%', 'Maximize', 10, 0.8],
             ],
-            'Content Creator TikTok' => $this->socialMediaKpi(),
             'Content Creator' => $this->socialMediaKpi(),
-            'Marketing Many Platform' => $this->socialMediaKpi(),
             'Product Executive' => [
-                ['Harga Pokok Produksi', '%', 'maximize', 25],
-                ['Recipe Development Lead Time', 'Hari', 'maximize', 25],
-                ['Product Life Cycle', 'Bulan', 'maximize', 50],
+                ['Harga Pokok Produksi', '%', 'Maximize', 25, 0.6],
+                ['Recipe Development Lead Time', 'Hari', 'Maximize', 25, 7],
+                ['Product Life Cycle', 'Bulan', 'Maximize', 50, 6],
             ],
             'Research and Development' => [
-                ['New Product Development', 'Angka', 'maximize', 35],
-                ['Product Development Lead Time', 'Hari', 'maximize', 40],
-                ['Product Life Cycle', 'Bulan', 'maximize', 25],
+                // Target fleksibel: ikut realisasi launching bulan itu (misal dapat 1
+                // produk baru, ya targetnya dianggap 1). 1 dipakai sebagai baseline,
+                // wajar disesuaikan manual tiap bulan, bukan kuota tetap.
+                ['New Product Development', 'Angka', 'Maximize', 35, 1],
+                ['Product Development Lead Time', 'Hari', 'Maximize', 40, 14],
+                ['Product Life Cycle', 'Bulan', 'Maximize', 25, 6],
             ],
             'Admin Stock Warehouse' => [
-                ['Delivery Delay', 'Angka', 'minimize', 25],
-                ['Delivery Accuracy', 'Angka', 'minimize', 20],
-                ['Expired Product', 'Angka', 'minimize', 20],
-                ['Loss or Damage Goods', 'Angka', 'minimize', 20],
-                ['Unnoticed Stockout Rate', '%', 'minimize', 15],
+                ['Delivery Delay', 'Angka', 'Minimize', 25, 5],
+                ['Delivery Accuracy', 'Angka', 'Minimize', 20, 0],
+                ['Expired Product', 'Angka', 'Minimize', 20, 10],
+                ['Loss or Damage Goods', 'Angka', 'Minimize', 20, 0],
+                ['Unnoticed Stockout Rate', '%', 'Minimize', 15, 0.1],
             ],
             'Asisten Purchasing' => [
-                ['On Time Delivery', '%', 'maximize', 30],
-                ['Order Accuracy Rate', '%', 'maximize', 30],
-                ['Cost Percentage', '%', 'maximize', 40],
+                ['On Time Delivery', '%', 'Maximize', 30, 0.9],
+                ['Order Accuracy Rate', '%', 'Maximize', 30, 1],
+                ['Cost Percentage', '%', 'Maximize', 40, 0.1],
             ],
+            // Target KPI Head Purchasing belum ada di dokumen acuan (tidak ada sheet-nya).
+            // Semua nilai_target di-set 0 sampai ada data asli dari lapangan.
             'Head Purchasing' => [
-                ['Cost Percentage', '%', 'maximize', 20],
-                ['Inventory Shrinkage Cost', 'Rupiah', 'minimize', 25],
-                ['Order Fulfillment Rate', '%', 'maximize', 20],
-                ['Zero Complaint', 'Angka', 'minimize', 25],
-                ['Performance Tim', 'Angka', 'maximize', 10],
+                ['Cost Percentage', '%', 'Maximize', 20, 0],
+                ['Inventory Shrinkage Cost', 'Rupiah', 'Minimize', 25, 0],
+                ['Order Fulfillment Rate', '%', 'Maximize', 20, 0],
+                ['Zero Complaint', 'Angka', 'Minimize', 25, 0],
+                ['Performance Tim', 'Angka', 'Maximize', 10, 0],
             ],
             // KPI resmi HR-GA — dari dokumen "KEY PERFORMANCE INDICATOR - SUPPORT -
             // HUMAN RESOURCE GENERAL AFFAIR" (No Dokumen: KPI/GAS/013/VII/2026,
             // Tanggal Efektif 1/9/2026). Bobot total 100%.
             // Catatan: "Asset Maintenance Completion Rate" ditandai Minimize di
             // dokumen aslinya (bukan salah ketik saya) — diikuti persis apa adanya.
+            // Nama Divisi: HR-GA (dicek langsung dari tabel divisi — bukan "HRD",
+            // itu nama Role-nya, beda hal sama nama Divisi).
+            // 4 dari 5 target masih 0% di dokumen -> dikosongkan (0) sampai ada angka asli.
             'HR-GA' => [
-                ['Hiring Fulfillment Rate', '%', 'maximize', 20],
-                ['Disciplinary Violations', 'Angka', 'minimize', 25],
-                ['Asset Maintenance Completion Rate', '%', 'minimize', 15],
-                ['Performance Review Completion', '%', 'maximize', 30],
-                ['Training Plan Execution Rate', '%', 'maximize', 10],
+                ['Hiring Fulfillment Rate', '%', 'Maximize', 20, 0],
+                ['Disciplinary Violations', 'Angka', 'Minimize', 25, 2],
+                ['Asset Maintenance Completion Rate', '%', 'Minimize', 15, 0],
+                ['Performance Review Completion', '%', 'Maximize', 30, 0],
+                ['Training Plan Execution Rate', '%', 'Maximize', 10, 0],
+            ],
+            // Divisi khusus milik Siti Maysaroh (lihat kpi-assignment.json).
+            'Customer Relation' => [
+                ['Revenue Retention', 'Rupiah', 'Maximize', 40, 50000000],
+                ['Partnert Repeat Order Rate', '%', 'Maximize', 30, 0.2],
+                // Skor kepuasan mitra, skala per 10 (target 8 dari 10).
+                ['Partner Satisfaction Score', 'Angka', 'Maximize', 15, 8],
+                ['Handling Complaint Rate', '%', 'Maximize', 15, 1],
             ],
         ];
 
         // 3. Divisi yang KPI-nya berlaku untuk SEMUA karyawan di divisi itu
         $divisiWide = [
             'Admin Sales', 'Telesales', 'Supervisor', 'Team Leader Digital Marketing',
-            'Content Creator TikTok', 'Content Creator', 'Marketing Many Platform',
+            'Content Creator',
             'HR-GA',
         ];
 
@@ -123,12 +146,12 @@ class KpiJabatanSeeder extends Seeder
             }
 
             $kpiIds = [];
-            foreach ($daftarKpi as [$nama, $satuan, $pola, $bobot]) {
+            foreach ($daftarKpi as [$nama, $satuan, $pola, $bobot, $target]) {
                 $kpi = KpiMaster::firstOrCreate(
                     ['nama_kpi' => $nama, 'divisi_id' => $divisi->id],
                     ['satuan' => $satuan, 'pola' => $pola, 'is_active' => true]
                 );
-                $kpiIds[] = ['kpi' => $kpi, 'bobot' => $bobot];
+                $kpiIds[] = ['kpi' => $kpi, 'bobot' => $bobot, 'target' => $target];
             }
 
             if (isset($orangSpesifik[$namaDivisi])) {
@@ -148,11 +171,15 @@ class KpiJabatanSeeder extends Seeder
                 $users = collect();
             }
 
+            if ($users->isEmpty()) {
+                $this->command->warn("Divisi '{$namaDivisi}': KPI master dibuat, tapi TIDAK ADA user yang di-assign (cek kpi-assignment.json atau role user di divisi ini).");
+            }
+
             foreach ($users as $user) {
                 foreach ($kpiIds as $item) {
                     $targetBulanan = TargetBulanan::firstOrCreate(
                         ['kpi_id' => $item['kpi']->id, 'user_id' => $user->id, 'periode' => $periode],
-                        ['nilai_target' => 0, 'bobot' => $item['bobot']]
+                        ['nilai_target' => $item['target'], 'bobot' => $item['bobot']]
                     );
 
                     for ($minggu = 1; $minggu <= 4; $minggu++) {
@@ -171,11 +198,11 @@ class KpiJabatanSeeder extends Seeder
     protected function socialMediaKpi(): array
     {
         return [
-            ['Content Fulfilment', 'Angka', 'maximize', 15],
-            ['High Performing Content', '%', 'maximize', 25],
-            ['Lead Generation', 'Angka', 'maximize', 25],
-            ['Engagement Rate', '%', 'maximize', 20],
-            ['Followers Growth', '%', 'maximize', 15],
+            ['Content Fulfilment', 'Angka', 'Maximize', 15, 800],
+            ['High Performing Content', '%', 'Maximize', 25, 0.2],
+            ['Lead Generation', 'Angka', 'Maximize', 25, 1000],
+            ['Engagement Rate', '%', 'Maximize', 20, 0.2],
+            ['Followers Growth', '%', 'Maximize', 15, 0.2],
         ];
     }
 }
