@@ -32,6 +32,7 @@
                         ['label' => 'Izin Anggota Divisi', 'route' => 'atasan.izin-anggota-divisi.pengajuan'],
                         ['label' => 'Surat Peringatan', 'route' => 'atasan.surat-peringatan.peraturan'],
                         ['label' => 'KPI Tim', 'route' => 'atasan.kpi-tim.index'],
+                        ['label' => 'KPI Saya', 'route' => 'atasan.kpi-saya.index'],
                     ];
                 @endphp
 

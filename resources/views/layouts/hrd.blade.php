@@ -37,6 +37,7 @@
                         ['label' => 'SP Karyawan', 'route' => 'hrd.sp-karyawan.terbitkan'],
                         ['label' => 'Data Karyawan', 'route' => 'hrd.karyawan.index'],
                         ['label' => 'KPI Karyawan', 'route' => 'hrd.kpi-karyawan.index'],
+                        ['label' => 'KPI Saya', 'route' => 'hrd.kpi-saya.index'],
                     ];
                 @endphp
                 @foreach ($menus as $menu)

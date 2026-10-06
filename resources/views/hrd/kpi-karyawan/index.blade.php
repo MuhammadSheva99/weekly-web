@@ -12,5 +12,6 @@
         'cari' => $cari,
         'divisiList' => $divisiList,
         'divisiId' => $divisiId,
+        'routeDetail' => 'hrd.kpi-karyawan.show',
     ])
 @endsection

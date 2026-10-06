@@ -1,6 +1,8 @@
 {{--
     Daftar orang + KPI-nya (klik baris untuk membuka tabel KPI lengkap).
-    Param: $daftar, $periode, $cari, opsional $divisiList & $divisiId (filter divisi)
+    Param: $daftar, $periode, $cari, opsional $divisiList & $divisiId (filter divisi),
+    opsional $routeDetail (nama route halaman detail; kalau diisi muncul tombol Detail,
+    kalau tidak, baris bisa diklik untuk membuka tabel di tempat)
 --}}
 @php
     $fmt = fn ($n, $desimal = 1) => rtrim(rtrim(number_format((float) $n, $desimal, ',', '.'), '0'), ',');
@@ -32,7 +34,13 @@
     <button type="submit" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Cari</button>
 </form>
 
-<p class="text-xs text-gray-400 mb-4">Klik baris untuk melihat tabel KPI lengkap (target, realisasi, pencapaian, skor).</p>
+<p class="text-xs text-gray-400 mb-4">
+    @isset($routeDetail)
+        Klik tombol Detail untuk melihat tabel KPI lengkap dan mengunduhnya sebagai Excel.
+    @else
+        Klik baris untuk melihat tabel KPI lengkap (target, realisasi, pencapaian, skor).
+    @endisset
+</p>
 
 <div class="bg-white rounded-2xl overflow-hidden">
     <table class="w-full text-sm">
@@ -44,12 +52,13 @@
                 <th class="py-3 pr-4">Terisi</th>
                 <th class="py-3 pr-4">Skor</th>
                 <th class="py-3 pr-4">Status</th>
+                @isset($routeDetail)<th class="py-3 pr-4 text-right">Aksi</th>@endisset
             </tr>
         </thead>
 
         @forelse ($daftar as $d)
             <tbody x-data="{ open: false }" class="border-b">
-                <tr @click="open = !open" class="cursor-pointer hover:bg-gray-50">
+                <tr @isset($routeDetail) class="hover:bg-gray-50" @else @click="open = !open" class="cursor-pointer hover:bg-gray-50" @endisset>
                     <td class="py-3 pr-4 pl-4 font-medium text-gray-900">{{ $d->user->nama ?? '-' }}</td>
                     <td class="py-3 pr-4 text-gray-600">{{ $d->user->divisi->nama ?? '-' }}</td>
                     <td class="py-3 pr-4 text-gray-600">{{ $d->jumlah }} KPI</td>
@@ -64,18 +73,27 @@
                     <td class="py-3 pr-4">
                         <span class="px-3 py-1 rounded text-xs font-semibold {{ $badgeStatus($d->status) }}">{{ $d->status ?? '-' }}</span>
                     </td>
+                    @isset($routeDetail)
+                        <td class="py-3 pr-4 text-right">
+                            <a href="{{ route($routeDetail, ['user' => $d->user->id, 'periode' => $periode]) }}"
+                               style="background:#1f2937;color:#ffffff;display:inline-block;padding:6px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none"
+                               onmouseover="this.style.background='#374151'" onmouseout="this.style.background='#1f2937'">Detail</a>
+                        </td>
+                    @endisset
                 </tr>
-                <tr x-show="open" x-cloak>
-                    <td colspan="6" class="pb-4 px-4">
-                        <div class="border border-gray-200 rounded-xl overflow-hidden">
-                            @include('partials.kpi.tabel', ['d' => $d])
-                        </div>
-                    </td>
-                </tr>
+                @if (! isset($routeDetail))
+                    <tr x-show="open" x-cloak>
+                        <td colspan="6" class="pb-4 px-4">
+                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                @include('partials.kpi.tabel', ['d' => $d])
+                            </div>
+                        </td>
+                    </tr>
+                @endif
             </tbody>
         @empty
             <tbody>
-                <tr><td colspan="6" class="py-8 text-center text-gray-400">Belum ada karyawan dengan KPI pada periode ini.</td></tr>
+                <tr><td colspan="7" class="py-8 text-center text-gray-400">Belum ada karyawan dengan KPI pada periode ini.</td></tr>
             </tbody>
         @endforelse
     </table>

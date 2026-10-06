@@ -30,6 +30,7 @@ use App\Http\Controllers\Hrd\SuratPeringatanController;
 use App\Http\Controllers\Hrd\KaryawanController as HrdKaryawanController;
 use App\Http\Controllers\Hrd\CutiBersamaController as HrdCutiBersamaController;
 use App\Http\Controllers\Hrd\KpiKaryawanController as HrdKpiKaryawanController;
+use App\Http\Controllers\Hrd\KpiSayaController as HrdKpiSayaController;
 
 
 use App\Http\Controllers\Management\DashboardController as ManagementDashboardController;
@@ -58,6 +59,7 @@ use App\Http\Controllers\Atasan\IzinController as AtasanIzinController;
 use App\Http\Controllers\Atasan\IzinApprovalController;
 use App\Http\Controllers\Atasan\SuratPeringatanController as AtasanSuratPeringatanController;
 use App\Http\Controllers\Atasan\KpiTimController as AtasanKpiTimController;
+use App\Http\Controllers\Atasan\KpiSayaController as AtasanKpiSayaController;
 
 
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
@@ -198,7 +200,10 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::put('/', [HrdSelfReviewController::class, 'update'])->name('update');
     });
 
+    Route::get('/kpi-saya', [HrdKpiSayaController::class, 'index'])->name('kpi-saya.index');
     Route::get('/kpi-karyawan', [HrdKpiKaryawanController::class, 'index'])->name('kpi-karyawan.index');
+    Route::get('/kpi-karyawan/{user}', [HrdKpiKaryawanController::class, 'show'])->name('kpi-karyawan.show');
+    Route::get('/kpi-karyawan/{user}/excel', [HrdKpiKaryawanController::class, 'excel'])->name('kpi-karyawan.excel');
 
     Route::get('/monitoring-pic', [MonitoringPicController::class, 'index'])->name('monitoring-pic.index');
     Route::get('/underperform', [UnderperformController::class, 'index'])->name('underperform.index');
@@ -334,7 +339,10 @@ Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->g
 
     Route::get('/monitoring-tim', [MonitoringTimController::class, 'index'])->name('monitoring-tim.index');
 
+    Route::get('/kpi-saya', [AtasanKpiSayaController::class, 'index'])->name('kpi-saya.index');
     Route::get('/kpi-tim', [AtasanKpiTimController::class, 'index'])->name('kpi-tim.index');
+    Route::get('/kpi-tim/{user}', [AtasanKpiTimController::class, 'show'])->name('kpi-tim.show');
+    Route::get('/kpi-tim/{user}/excel', [AtasanKpiTimController::class, 'excel'])->name('kpi-tim.excel');
 
     Route::get('/trend-performance', [TrendPerformanceTimController::class, 'index'])->name('trend-performance.index');
 

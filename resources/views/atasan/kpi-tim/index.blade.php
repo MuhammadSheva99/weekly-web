@@ -10,5 +10,6 @@
         'daftar' => $daftar,
         'periode' => $periode,
         'cari' => $cari,
+        'routeDetail' => 'atasan.kpi-tim.show',
     ])
 @endsection
