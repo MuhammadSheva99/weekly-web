@@ -27,25 +27,62 @@
                 <div>Actual Final</div>
             </div>
             @foreach ($commitments as $c)
+                @php
+                    $satuan = $c->targetMingguan?->targetBulanan?->kpi?->satuan;
+                    $isPersen = $satuan === '%';
+                    $actualRabu = $c->weeklyProgress->actual_sementara ?? 0;
+                    // nilai awal: old() kalau validasi gagal, kalau tidak actual Rabu (% berupa pecahan)
+                    $nilaiAwal = old('actual.' . $c->id, $c->weeklyProgress->actual_sementara ?? '');
+                    if ($nilaiAwal === null || $nilaiAwal === '') {
+                        $displayAwal = '';
+                    } elseif ($isPersen) {
+                        // 0.05 -> tampil "5"
+                        $displayAwal = rtrim(rtrim(number_format((float) $nilaiAwal * 100, 2, ',', ''), '0'), ',');
+                    } else {
+                        $displayAwal = number_format((float) $nilaiAwal, 0, ',', '.');
+                    }
+                @endphp
                 <div class="grid grid-cols-4 gap-4 px-5 py-3 {{ !$loop->last ? 'border-b border-gray-100' : '' }} items-center">
                     <input type="hidden" name="weekly_commitment_ids[]" value="{{ $c->id }}">
                     <div class="text-sm font-medium text-gray-800">
                         {{ $c->targetMingguan?->targetBulanan?->kpi?->nama_kpi ?? 'Target Manual' }}
                     </div>
-                    <div class="text-sm text-gray-600">{{ number_format($c->target, 0, ',', '.') }}</div>
-                    <div class="text-sm text-gray-600">{{ number_format($c->weeklyProgress->actual_sementara ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-sm text-gray-600">
+                        @if ($satuan)
+                            {{ \App\Support\KpiFormat::tampil($c->target, $satuan) }}
+                        @else
+                            {{ number_format($c->target, 0, ',', '.') }}
+                        @endif
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        @if ($satuan)
+                            {{ \App\Support\KpiFormat::tampil($actualRabu, $satuan) }}
+                        @else
+                            {{ number_format($actualRabu, 0, ',', '.') }}
+                        @endif
+                    </div>
 
                     <div>
-                        <input
-                            type="text"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            placeholder="0"
-                            class="actual-display px-3 py-2 border border-gray-300 rounded-lg text-sm w-full"
-                            value="{{ old('actual.' . $c->id, number_format((float) ($c->weeklyProgress->actual_sementara ?? 0), 0, ',', '.')) }}"
-                        >
+                        <div class="flex items-center gap-2">
+                            @if ($satuan === 'Rupiah')
+                                <span class="text-sm text-gray-500">Rp</span>
+                            @endif
+                            <input
+                                type="text"
+                                inputmode="{{ $isPersen ? 'decimal' : 'numeric' }}"
+                                autocomplete="off"
+                                placeholder="0"
+                                data-satuan="{{ $satuan }}"
+                                class="actual-display px-3 py-2 border border-gray-300 rounded-lg text-sm w-full"
+                                value="{{ $displayAwal }}"
+                            >
+                            @if ($satuan && ! in_array($satuan, ['Rupiah', 'Angka']))
+                                <span class="text-sm text-gray-500">{{ $satuan }}</span>
+                            @endif
+                        </div>
+                        {{-- nilai yang dikirim ke server: % dikirim sebagai pecahan (5 -> 0.05) --}}
                         <input type="hidden" name="actual[{{ $c->id }}]" class="actual-hidden" required
-                               value="{{ old('actual.' . $c->id, $c->weeklyProgress->actual_sementara ?? '') }}">
+                               value="{{ $nilaiAwal }}">
                     </div>
                 </div>
             @endforeach
@@ -74,18 +111,36 @@
 
     <script>
         (function () {
-            // ketik "50000000" -> otomatis tampil "50.000.000"
+            // Non-persen: ketik "50000000" -> tampil "50.000.000", kirim "50000000"
             function formatRibuan(angka) {
                 const bersih = angka.replace(/\D/g, '');
                 if (!bersih) return '';
                 return bersih.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
             }
 
+            // Persen: boleh desimal pakai koma (maks 2 digit). "5" / "12,5"
+            function bersihkanPersen(teks) {
+                let t = teks.replace(/[^\d,\.]/g, '').replace(/\./g, ',');
+                const idx = t.indexOf(',');
+                if (idx !== -1) {
+                    t = t.slice(0, idx + 1) + t.slice(idx + 1).replace(/,/g, '').slice(0, 2);
+                }
+                return t;
+            }
+
             document.addEventListener('input', function (e) {
                 if (!e.target.classList.contains('actual-display')) return;
 
                 const display = e.target;
-                const hidden  = display.nextElementSibling;
+                const hidden  = display.parentElement.nextElementSibling;
+
+                if (display.dataset.satuan === '%') {
+                    display.value = bersihkanPersen(display.value);
+                    const angka = parseFloat(display.value.replace(',', '.'));
+                    // 5 -> 0.05 (disimpan sebagai pecahan, sama seperti target)
+                    hidden.value = isNaN(angka) ? '' : String(Math.round(angka * 100) / 10000);
+                    return;
+                }
 
                 const posisiKursorDariBelakang = display.value.length - display.selectionStart;
                 const formatted = formatRibuan(display.value);

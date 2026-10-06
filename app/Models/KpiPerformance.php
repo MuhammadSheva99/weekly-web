@@ -18,7 +18,7 @@ class KpiPerformance extends Model
     {
         return [
             'periode' => 'date',
-            'actual_bulanan' => 'decimal:2',
+            'actual_bulanan' => 'decimal:4',
             'achievement_pct' => 'decimal:2',
         ];
     }

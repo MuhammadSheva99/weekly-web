@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\DivisiRoleController;
 use App\Http\Controllers\Admin\AssignKpiController;
 use App\Http\Controllers\Admin\CutiQuotaController;
 use App\Http\Controllers\Admin\CutiBersamaController;
-
+use App\Http\Controllers\Admin\KpiMasterController;
 
 use App\Http\Controllers\Hrd\DashboardController as HrdDashboardController;
 use App\Http\Controllers\Hrd\WeeklyCommitmentController as HrdWeeklyCommitmentController;
@@ -29,6 +29,7 @@ use App\Http\Controllers\Hrd\CompanyDocumentController;
 use App\Http\Controllers\Hrd\SuratPeringatanController;
 use App\Http\Controllers\Hrd\KaryawanController as HrdKaryawanController;
 use App\Http\Controllers\Hrd\CutiBersamaController as HrdCutiBersamaController;
+use App\Http\Controllers\Hrd\KpiKaryawanController as HrdKpiKaryawanController;
 
 
 use App\Http\Controllers\Management\DashboardController as ManagementDashboardController;
@@ -39,6 +40,7 @@ use App\Http\Controllers\Management\SuratPeringatanController as ManagementSurat
 use App\Http\Controllers\Management\KaryawanController;
 use App\Http\Controllers\Management\MonitoringKaryawanController;
 use App\Http\Controllers\Management\MonitoringDivisiController;
+use App\Http\Controllers\Management\KpiKaryawanController as ManagementKpiKaryawanController;
 
 
 
@@ -55,6 +57,7 @@ use App\Http\Controllers\Atasan\NotificationController as AtasanNotificationCont
 use App\Http\Controllers\Atasan\IzinController as AtasanIzinController;
 use App\Http\Controllers\Atasan\IzinApprovalController;
 use App\Http\Controllers\Atasan\SuratPeringatanController as AtasanSuratPeringatanController;
+use App\Http\Controllers\Atasan\KpiTimController as AtasanKpiTimController;
 
 
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
@@ -67,6 +70,7 @@ use App\Http\Controllers\Karyawan\CutiController as KaryawanCutiController;
 use App\Http\Controllers\Karyawan\NotificationController as KaryawanNotificationController;
 use App\Http\Controllers\Karyawan\IzinController as KaryawanIzinController;
 use App\Http\Controllers\Karyawan\SuratPeringatanController as KaryawanSuratPeringatanController;
+use App\Http\Controllers\Karyawan\KpiController as KaryawanKpiController;
 
 
 
@@ -112,6 +116,11 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/', [CutiBersamaController::class, 'create'])->name('create');
         Route::post('/', [CutiBersamaController::class, 'store'])->name('store');
     });
+
+    Route::get('/kpi-master', [KpiMasterController::class, 'index'])->name('kpi-master.index');
+    Route::post('/kpi-master', [KpiMasterController::class, 'store'])->name('kpi-master.store');
+    Route::put('/kpi-master/{kpiMaster}', [KpiMasterController::class, 'update'])->name('kpi-master.update');
+    Route::delete('/kpi-master/{kpiMaster}', [KpiMasterController::class, 'destroy'])->name('kpi-master.destroy');
 });
 
 
@@ -135,6 +144,8 @@ Route::middleware(['auth', 'role:Karyawan'])->prefix('karyawan')->name('karyawan
         Route::post('/', [KaryawanSelfReviewController::class, 'store'])->name('store');
         Route::put('/', [KaryawanSelfReviewController::class, 'update'])->name('update');
     });
+
+    Route::get('/kpi', [KaryawanKpiController::class, 'index'])->name('kpi.index');
 
     Route::get('/history-weekly', [HistoryWeeklyController::class, 'index'])->name('history-weekly.index');
     Route::get('/trend-performance', [KaryawanTrendPerformanceController::class, 'index'])->name('trend-performance.index');
@@ -186,6 +197,8 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::post('/', [HrdSelfReviewController::class, 'store'])->name('store');
         Route::put('/', [HrdSelfReviewController::class, 'update'])->name('update');
     });
+
+    Route::get('/kpi-karyawan', [HrdKpiKaryawanController::class, 'index'])->name('kpi-karyawan.index');
 
     Route::get('/monitoring-pic', [MonitoringPicController::class, 'index'])->name('monitoring-pic.index');
     Route::get('/underperform', [UnderperformController::class, 'index'])->name('underperform.index');
@@ -291,6 +304,8 @@ Route::middleware(['auth', 'role:Management'])->prefix('management')->name('mana
     Route::get('/monitoring-divisi', [MonitoringDivisiController::class, 'index'])
     ->name('monitoring-divisi.index');
 
+    Route::get('/kpi-karyawan', [ManagementKpiKaryawanController::class, 'index'])->name('kpi-karyawan.index');
+
 });
 
 Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->group(function () {
@@ -318,6 +333,8 @@ Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->g
     Route::post('/feedback/{user}', [FeedbackController::class, 'store'])->name('feedback.store');
 
     Route::get('/monitoring-tim', [MonitoringTimController::class, 'index'])->name('monitoring-tim.index');
+
+    Route::get('/kpi-tim', [AtasanKpiTimController::class, 'index'])->name('kpi-tim.index');
 
     Route::get('/trend-performance', [TrendPerformanceTimController::class, 'index'])->name('trend-performance.index');
 

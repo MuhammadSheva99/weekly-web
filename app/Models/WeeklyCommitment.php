@@ -24,7 +24,7 @@ class WeeklyCommitment extends Model
         return [
             'prioritas' => 'array',
             'metric' => 'array',
-            'target' => 'decimal:2',
+            'target' => 'decimal:4',
             'submitted_at' => 'datetime',
         ];
     }

@@ -24,7 +24,7 @@
                         ['label' => 'Monitoring Divisi', 'route' => 'management.monitoring-divisi.index'],
                         ['label' => 'Cuti Karyawan', 'route' => 'management.cuti-karyawan.index'],
                         ['label' => 'Izin Karyawan', 'route' => 'management.izin-karyawan.index'],
-
+                        ['label' => 'KPI Karyawan', 'route' => 'management.kpi-karyawan.index'],
                     ];
                 @endphp
 

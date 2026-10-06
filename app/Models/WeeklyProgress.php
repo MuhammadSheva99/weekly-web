@@ -20,7 +20,7 @@ class WeeklyProgress extends Model
     protected function casts(): array
     {
         return [
-            'actual_sementara' => 'decimal:2',
+            'actual_sementara' => 'decimal:4',
             'achievement_pct' => 'decimal:2',
             'submitted_at' => 'datetime',
         ];

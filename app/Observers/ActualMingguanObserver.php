@@ -25,10 +25,15 @@ class ActualMingguanObserver
             ->sum('nilai_actual_final');
 
         $target = (float) $targetBulanan->nilai_target;
+        $pola = strtolower((string) $kpi->pola);
         $achievementPct = 0;
 
-        if ($target > 0) {
-            $achievementPct = $kpi->pola === 'minimize'
+        if ($kpi->target_fleksibel) {
+            // Target fleksibel: target mengikuti realisasi.
+            // Minimize selalu 100%; Maximize 100% selama ada realisasi.
+            $achievementPct = $pola === 'minimize' ? 100 : ($totalActual > 0 ? 100 : 0);
+        } elseif ($target > 0) {
+            $achievementPct = $pola === 'minimize'
                 ? min(($target / max($totalActual, 0.0001)) * 100, 999)
                 : ($totalActual / $target) * 100;
         }

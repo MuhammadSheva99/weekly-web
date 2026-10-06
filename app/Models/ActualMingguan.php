@@ -20,7 +20,7 @@ class ActualMingguan extends Model
     protected function casts(): array
     {
         return [
-            'nilai_actual_final' => 'decimal:2',
+            'nilai_actual_final' => 'decimal:4',
             'achievement_pct' => 'decimal:2',
             'locked_at' => 'datetime',
         ];

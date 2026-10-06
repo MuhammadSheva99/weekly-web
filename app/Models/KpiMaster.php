@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['nama_kpi', 'satuan', 'pola', 'divisi_id', 'is_active'])]
+#[Fillable([
+    'nama_kpi', 'satuan', 'pola', 'divisi_id', 'is_active', 'target_fleksibel',
+    'key_result_area', 'deskripsi', 'sumber_data', 'rumus_realisasi', 'rumus_target',
+])]
 class KpiMaster extends Model
 {
     use HasUuids;
@@ -17,7 +20,10 @@ class KpiMaster extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return [
+            'is_active' => 'boolean',
+            'target_fleksibel' => 'boolean',
+        ];
     }
 
     public function divisi(): BelongsTo

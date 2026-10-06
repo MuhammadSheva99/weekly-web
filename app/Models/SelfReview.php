@@ -21,8 +21,8 @@ class SelfReview extends Model
     protected function casts(): array
     {
         return [
-            'target_minggu' => 'decimal:2',
-            'actual' => 'decimal:2',
+            'target_minggu' => 'decimal:4',
+            'actual' => 'decimal:4',
             'achievement_pct' => 'decimal:2',
             'submitted_at' => 'datetime',
         ];

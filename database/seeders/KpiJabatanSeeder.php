@@ -15,6 +15,17 @@ class KpiJabatanSeeder extends Seeder
     // 'HRD' ditambahkan supaya divisi HR-GA (Irwan) ikut ter-assign.
     protected const ROLE_DIVISI_WIDE = ['Karyawan', 'Atasan', 'HRD'];
 
+    // KPI bertarget fleksibel: target mengikuti realisasi (hanya dapat 1 -> target 1).
+    protected const KPI_FLEKSIBEL = [
+        'HR-GA' => [
+            'Hiring Fulfillment Rate',
+            'Asset Maintenance Completion Rate',
+            'Performance Review Completion',
+            'Training Plan Execution Rate',
+            'Disciplinary Violations',
+        ],
+    ];
+
     public function run(): void
     {
         // 1. Buat divisi baru yang belum ada (aman kalau sudah ada, tidak duplikat)
@@ -48,15 +59,12 @@ class KpiJabatanSeeder extends Seeder
                 ['Performance Tim', '%', 'Maximize', 10, 0],
             ],
             'Team Leader Digital Marketing' => [
-                // Belum diisi di dokumen -> dikonfirmasi tetap 0 untuk sekarang.
-                ['Average Revenue per Product', 'Rupiah', 'Maximize', 15, 0],
-                ['Harga Pokok Produksi', '%', 'Maximize', 30, 0.6],
-                // ROAS: dokumen nulis target "2000 per click" yang nggak konsisten
-                // sama definisi ROAS (rasio hasil/biaya iklan, bukan biaya per klik).
-                // Dikosongkan dulu (0) sampai jelas ini ROAS beneran atau sebenarnya CPC.
-                ['ROAS', 'Angka', 'Maximize', 25, 0],
-                ['Lead Generation', 'Angka', 'Maximize', 20, 2000],
-                ['Performance Tim', '%', 'Maximize', 10, 0.8],
+                // Bobot & target mengikuti sheet "Marketing Supervisor" versi terbaru
+                // di KPI.xlsx (total bobot 100%). Harga Pokok Produksi sudah dihapus.
+                ['Average Revenue per Product', 'Rupiah', 'Maximize', 25, 1000000000],
+                ['ROAS', 'Angka', 'Maximize', 25, 7],
+                ['Lead Generation', 'Angka', 'Maximize', 20, 5000],
+                ['Performance Tim', '%', 'Maximize', 30, 0.8],
             ],
             'Content Creator' => $this->socialMediaKpi(),
             'Product Executive' => [
@@ -151,6 +159,9 @@ class KpiJabatanSeeder extends Seeder
                     ['nama_kpi' => $nama, 'divisi_id' => $divisi->id],
                     ['satuan' => $satuan, 'pola' => $pola, 'is_active' => true]
                 );
+                if (in_array($nama, self::KPI_FLEKSIBEL[$namaDivisi] ?? [], true)) {
+                    KpiMaster::whereKey($kpi->id)->update(['target_fleksibel' => true]);
+                }
                 $kpiIds[] = ['kpi' => $kpi, 'bobot' => $bobot, 'target' => $target];
             }
 
@@ -182,10 +193,17 @@ class KpiJabatanSeeder extends Seeder
                         ['nilai_target' => $item['target'], 'bobot' => $item['bobot']]
                     );
 
+                    // firstOrCreate tidak mengubah baris yang sudah ada, jadi bobot
+                    // disinkronkan di sini. nilai_target sengaja TIDAK ditimpa supaya
+                    // target yang sudah diedit manual tidak hilang.
+                    if ((float) $targetBulanan->bobot !== (float) $item['bobot']) {
+                        $targetBulanan->update(['bobot' => $item['bobot']]);
+                    }
+
                     for ($minggu = 1; $minggu <= 4; $minggu++) {
                         TargetMingguan::firstOrCreate(
                             ['target_bulanan_id' => $targetBulanan->id, 'minggu_ke' => $minggu],
-                            ['nilai_target' => round($targetBulanan->nilai_target / 4, 2)]
+                            ['nilai_target' => round($targetBulanan->nilai_target / 4, 4)]
                         );
                     }
                 }
@@ -198,11 +216,12 @@ class KpiJabatanSeeder extends Seeder
     protected function socialMediaKpi(): array
     {
         return [
+            // Bobot mengikuti sheet "Social Media Specialist" di KPI.xlsx (total 100%).
             ['Content Fulfilment', 'Angka', 'Maximize', 15, 800],
-            ['High Performing Content', '%', 'Maximize', 25, 0.2],
-            ['Lead Generation', 'Angka', 'Maximize', 25, 1000],
-            ['Engagement Rate', '%', 'Maximize', 20, 0.2],
-            ['Followers Growth', '%', 'Maximize', 15, 0.2],
+            ['High Performing Content', '%', 'Maximize', 40, 0.2],
+            ['Lead Generation', 'Angka', 'Maximize', 20, 1000],
+            ['Engagement Rate', '%', 'Maximize', 15, 0.2],
+            ['Followers Growth', '%', 'Maximize', 10, 0.2],
         ];
     }
 }

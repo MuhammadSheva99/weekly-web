@@ -51,7 +51,7 @@ class WeeklyProgressController extends Controller
         foreach ($data['weekly_commitment_ids'] as $commitmentId) {
             $commitment = WeeklyCommitment::where('user_id', Auth::id())->findOrFail($commitmentId);
             $actualValue = $data['actual'][$commitmentId] ?? 0;
-            $achievement = $commitment->target > 0 ? ($actualValue / $commitment->target) * 100 : 0;
+            $achievement = \App\Support\KpiAchievement::hitung($commitment, $actualValue);
 
             WeeklyProgress::create([
                 'weekly_commitment_id' => $commitment->id,
@@ -87,7 +87,7 @@ class WeeklyProgressController extends Controller
             abort_unless($commitment->user_id === Auth::id(), 403);
 
             $actualValue = $data['actual'][$progressId] ?? 0;
-            $achievement = $commitment->target > 0 ? ($actualValue / $commitment->target) * 100 : 0;
+            $achievement = \App\Support\KpiAchievement::hitung($commitment, $actualValue);
 
             $progress->update([
                 'actual_sementara' => $actualValue,

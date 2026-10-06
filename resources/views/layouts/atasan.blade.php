@@ -31,6 +31,7 @@
                         ['label' => 'Cuti Anggota Divisi', 'route' => 'atasan.cuti-anggota-divisi.pengajuan'],
                         ['label' => 'Izin Anggota Divisi', 'route' => 'atasan.izin-anggota-divisi.pengajuan'],
                         ['label' => 'Surat Peringatan', 'route' => 'atasan.surat-peringatan.peraturan'],
+                        ['label' => 'KPI Tim', 'route' => 'atasan.kpi-tim.index'],
                     ];
                 @endphp
 

@@ -27,6 +27,7 @@
                         ['label' => 'Cuti', 'route' => 'karyawan.cuti.dashboard'],
                         ['label' => 'Izin', 'route' => 'karyawan.izin.dashboard'],
                         ['label' => 'Surat Peringatan', 'route' => 'karyawan.surat-peringatan.peraturan'],
+                        ['label' => 'KPI', 'route' => 'karyawan.kpi.index'],
                     ];
                 @endphp
 

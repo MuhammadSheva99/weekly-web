@@ -23,6 +23,7 @@
                         ['label' => 'Assign Target KPI', 'route' => 'admin.assign-kpi.index'],
                         ['label' => 'Cuti Karyawan', 'route' => 'admin.cuti.index'],
                         ['label' => 'Cuti Bersama', 'route' => 'admin.cuti-bersama.create'],
+                        ['label' => 'Target KPI', 'route' => 'admin.kpi-master.index'],
                     ];
                 @endphp
 

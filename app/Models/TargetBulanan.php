@@ -19,7 +19,7 @@ class TargetBulanan extends Model
     {
         return [
             'periode' => 'date',
-            'nilai_target' => 'decimal:2',
+            'nilai_target' => 'decimal:4',
             'bobot' => 'decimal:2',
         ];
     }

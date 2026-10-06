@@ -22,7 +22,7 @@
             @foreach ($commitments as $c)
                 <div class="flex items-center justify-between text-sm bg-white rounded-lg px-4 py-2.5">
                     <span class="font-medium text-gray-800">{{ $c->targetMingguan->targetBulanan->kpi->nama_kpi }}</span>
-                    <span class="text-gray-600">Target: {{ number_format($c->target, 0, ',', '.') }} {{ $c->targetMingguan->targetBulanan->kpi->satuan }}</span>
+                    <span class="text-gray-600">Target: {{ \App\Support\KpiFormat::tampil($c->target, $c->targetMingguan->targetBulanan->kpi->satuan) }}</span>
                 </div>
             @endforeach
         </div>

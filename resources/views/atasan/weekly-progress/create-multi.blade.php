@@ -15,7 +15,7 @@
         <p class="font-bold text-gray-900">{{ $commitments->first()->big_goal }}</p>
     </div>
 
-    <form method="POST" action="{{ route('atasan.weekly-progress.store') }}">
+    <form method="POST" action="{{ route('atasan.weekly-progress.store') }}" id="formWeeklyProgress">
         @csrf
 
         <label class="block text-sm text-gray-700 font-semibold mb-3">Actual sementara per KPI</label>
@@ -26,14 +26,53 @@
                 <div>Actual Sementara</div>
             </div>
             @foreach ($commitments as $c)
+                @php
+                    $satuan = $c->targetMingguan?->targetBulanan?->kpi?->satuan;
+                    $isPersen = $satuan === '%';
+                    $oldActual = old('actual.' . $c->id);
+                    if ($oldActual === null || $oldActual === '') {
+                        $displayAwal = '';
+                    } elseif ($isPersen) {
+                        // old() berisi pecahan (0.05) -> tampil sebagai 5
+                        $displayAwal = rtrim(rtrim(number_format((float) $oldActual * 100, 2, ',', ''), '0'), ',');
+                    } else {
+                        $displayAwal = number_format((float) $oldActual, 0, ',', '.');
+                    }
+                @endphp
                 <div class="grid grid-cols-3 gap-4 px-5 py-3 {{ !$loop->last ? 'border-b border-gray-100' : '' }} items-center">
                     <input type="hidden" name="weekly_commitment_ids[]" value="{{ $c->id }}">
                     <div class="text-sm font-medium text-gray-800">
                         {{ $c->targetMingguan?->targetBulanan?->kpi?->nama_kpi ?? 'Target Manual' }}
                     </div>
-                    <div class="text-sm text-gray-600">{{ number_format($c->target, 0, ',', '.') }}</div>
-                    <input type="number" step="0.01" name="actual[{{ $c->id }}]" required
-                           class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <div class="text-sm text-gray-600">
+                        @if ($satuan)
+                            {{ \App\Support\KpiFormat::tampil($c->target, $satuan) }}
+                        @else
+                            {{ number_format($c->target, 0, ',', '.') }}
+                        @endif
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-2">
+                            @if ($satuan === 'Rupiah')
+                                <span class="text-sm text-gray-500">Rp</span>
+                            @endif
+                            <input
+                                type="text"
+                                inputmode="{{ $isPersen ? 'decimal' : 'numeric' }}"
+                                autocomplete="off"
+                                placeholder="0"
+                                data-satuan="{{ $satuan }}"
+                                class="actual-display px-3 py-2 border border-gray-300 rounded-lg text-sm w-full"
+                                value="{{ $displayAwal }}"
+                            >
+                            @if ($satuan && ! in_array($satuan, ['Rupiah', 'Angka']))
+                                <span class="text-sm text-gray-500">{{ $satuan }}</span>
+                            @endif
+                        </div>
+                        {{-- nilai yang dikirim ke server: % dikirim sebagai pecahan (5 -> 0.05) --}}
+                        <input type="hidden" name="actual[{{ $c->id }}]" class="actual-hidden" required value="{{ $oldActual }}">
+                    </div>
                 </div>
             @endforeach
         </div>
@@ -54,4 +93,59 @@
             Simpan weekly progress ({{ $commitments->count() }} KPI)
         </button>
     </form>
+
+    <script>
+        (function () {
+            // Non-persen: ketik "50000000" -> tampil "50.000.000", kirim "50000000"
+            function formatRibuan(angka) {
+                const bersih = angka.replace(/\D/g, '');
+                if (!bersih) return '';
+                return bersih.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            // Persen: boleh desimal pakai koma (maks 2 digit). "5" / "12,5"
+            function bersihkanPersen(teks) {
+                let t = teks.replace(/[^\d,\.]/g, '').replace(/\./g, ',');
+                const idx = t.indexOf(',');
+                if (idx !== -1) {
+                    t = t.slice(0, idx + 1) + t.slice(idx + 1).replace(/,/g, '').slice(0, 2);
+                }
+                return t;
+            }
+
+            document.addEventListener('input', function (e) {
+                if (!e.target.classList.contains('actual-display')) return;
+
+                const display = e.target;
+                const hidden  = display.parentElement.nextElementSibling;
+
+                if (display.dataset.satuan === '%') {
+                    display.value = bersihkanPersen(display.value);
+                    const angka = parseFloat(display.value.replace(',', '.'));
+                    // 5 -> 0.05 (disimpan sebagai pecahan, sama seperti target)
+                    hidden.value = isNaN(angka) ? '' : String(Math.round(angka * 100) / 10000);
+                    return;
+                }
+
+                const posisiKursorDariBelakang = display.value.length - display.selectionStart;
+                const formatted = formatRibuan(display.value);
+                display.value = formatted;
+                hidden.value = formatted.replace(/\./g, '');
+
+                const posisiBaru = Math.max(0, display.value.length - posisiKursorDariBelakang);
+                display.setSelectionRange(posisiBaru, posisiBaru);
+            });
+
+            document.getElementById('formWeeklyProgress').addEventListener('submit', function (e) {
+                let ada_kosong = false;
+                document.querySelectorAll('.actual-hidden').forEach(function (hidden) {
+                    if (!hidden.value) ada_kosong = true;
+                });
+                if (ada_kosong) {
+                    e.preventDefault();
+                    alert('Actual sementara untuk setiap KPI wajib diisi.');
+                }
+            });
+        })();
+    </script>
 @endsection

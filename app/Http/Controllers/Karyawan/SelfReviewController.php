@@ -60,7 +60,7 @@ class SelfReviewController extends Controller
         foreach ($data['weekly_commitment_ids'] as $commitmentId) {
             $commitment = WeeklyCommitment::with('targetMingguan')->findOrFail($commitmentId);
             $actualValue = $data['actual'][$commitmentId] ?? 0;
-            $achievement = $commitment->target > 0 ? ($actualValue / $commitment->target) * 100 : 0;
+            $achievement = \App\Support\KpiAchievement::hitung($commitment, $actualValue);
 
             SelfReview::create([
                 'weekly_commitment_id' => $commitment->id,
@@ -111,7 +111,7 @@ class SelfReviewController extends Controller
             $review = SelfReview::findOrFail($reviewId);
             $commitment = $review->weeklyCommitment;
             $actualValue = $data['actual'][$reviewId] ?? 0;
-            $achievement = $commitment->target > 0 ? ($actualValue / $commitment->target) * 100 : 0;
+            $achievement = \App\Support\KpiAchievement::hitung($commitment, $actualValue);
 
             $review->update([
                 'actual' => $actualValue,

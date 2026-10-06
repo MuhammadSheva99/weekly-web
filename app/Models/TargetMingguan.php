@@ -17,7 +17,7 @@ class TargetMingguan extends Model
 
     protected function casts(): array
     {
-        return ['nilai_target' => 'decimal:2'];
+        return ['nilai_target' => 'decimal:4'];
     }
 
     public function targetBulanan(): BelongsTo
