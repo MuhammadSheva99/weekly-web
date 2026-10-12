@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AiChatController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\DivisiRoleController;
@@ -73,6 +74,9 @@ use App\Http\Controllers\Karyawan\NotificationController as KaryawanNotification
 use App\Http\Controllers\Karyawan\IzinController as KaryawanIzinController;
 use App\Http\Controllers\Karyawan\SuratPeringatanController as KaryawanSuratPeringatanController;
 use App\Http\Controllers\Karyawan\KpiController as KaryawanKpiController;
+use App\Http\Controllers\Karyawan\FeedbackController as KaryawanFeedbackController;
+use App\Http\Controllers\Hrd\HistoryWeeklyController as HrdHistoryWeeklyController;
+use App\Http\Controllers\Atasan\HistoryWeeklyController as AtasanHistoryWeeklyController;
 
 
 
@@ -89,6 +93,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// AI Performance Coach (dipakai semua peran, jadi hanya memakai middleware auth)
+Route::middleware('auth')->prefix('ai-chat')->name('ai-chat.')->group(function () {
+    Route::get('/init/{weeklyCommitmentId}', [AiChatController::class, 'getOrInitChat'])->name('init');
+    Route::get('/history', [AiChatController::class, 'getChatHistoryList'])->name('history');
+    Route::get('/load/{chatId}', [AiChatController::class, 'loadSpecificChat'])->name('load');
+    Route::post('/send', [AiChatController::class, 'sendMessage'])->name('send');
 });
 
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -149,6 +161,9 @@ Route::middleware(['auth', 'role:Karyawan'])->prefix('karyawan')->name('karyawan
 
     Route::get('/kpi', [KaryawanKpiController::class, 'index'])->name('kpi.index');
 
+    Route::get('/feedback', [KaryawanFeedbackController::class, 'index'])->name('feedback.index');
+    Route::get('/feedback/{batch}', [KaryawanFeedbackController::class, 'show'])->name('feedback.show');
+
     Route::get('/history-weekly', [HistoryWeeklyController::class, 'index'])->name('history-weekly.index');
     Route::get('/trend-performance', [KaryawanTrendPerformanceController::class, 'index'])->name('trend-performance.index');
 
@@ -199,6 +214,9 @@ Route::middleware(['auth', 'role:HRD'])->prefix('hrd')->name('hrd.')->group(func
         Route::post('/', [HrdSelfReviewController::class, 'store'])->name('store');
         Route::put('/', [HrdSelfReviewController::class, 'update'])->name('update');
     });
+
+    Route::get('/history-weekly', [HrdHistoryWeeklyController::class, 'index'])->name('history-weekly.index');
+    Route::get('/history-weekly/{user}/{batch}', [HrdHistoryWeeklyController::class, 'show'])->name('history-weekly.show');
 
     Route::get('/kpi-saya', [HrdKpiSayaController::class, 'index'])->name('kpi-saya.index');
     Route::get('/kpi-karyawan', [HrdKpiKaryawanController::class, 'index'])->name('kpi-karyawan.index');
@@ -338,6 +356,9 @@ Route::middleware(['auth', 'role:Atasan'])->prefix('atasan')->name('atasan.')->g
     Route::post('/feedback/{user}', [FeedbackController::class, 'store'])->name('feedback.store');
 
     Route::get('/monitoring-tim', [MonitoringTimController::class, 'index'])->name('monitoring-tim.index');
+
+    Route::get('/history-weekly', [AtasanHistoryWeeklyController::class, 'index'])->name('history-weekly.index');
+    Route::get('/history-weekly/{user}/{batch}', [AtasanHistoryWeeklyController::class, 'show'])->name('history-weekly.show');
 
     Route::get('/kpi-saya', [AtasanKpiSayaController::class, 'index'])->name('kpi-saya.index');
     Route::get('/kpi-tim', [AtasanKpiTimController::class, 'index'])->name('kpi-tim.index');

@@ -160,4 +160,6 @@
             });
         })();
     </script>
+
+    @include('components.ai-chat-modal', ['commitmentId' => $commitments->first()->id ?? 1])
 @endsection

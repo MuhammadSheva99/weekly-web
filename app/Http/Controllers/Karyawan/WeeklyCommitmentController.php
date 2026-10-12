@@ -13,7 +13,7 @@ class WeeklyCommitmentController extends Controller
 {
     protected function mingguKeSekarang(): int
     {
-        return min((int) ceil(now()->day / 7), 4);
+        return \App\Support\MingguIni::mingguKe();
     }
 
     public function create()
@@ -30,7 +30,13 @@ class WeeklyCommitmentController extends Controller
             ->with('targetBulanan.kpi')
             ->get();
 
-        $existing = WeeklyCommitment::whereIn('target_mingguan_id', $targetMingguanList->pluck('id'))->first();
+        // Commitment dihitung per minggu kalender (Senin-Minggu). Kalau sudah ganti minggu,
+        // commitment minggu lalu tidak dianggap lagi, jadi form kosong muncul (reset).
+        $existing = WeeklyCommitment::where('user_id', $user->id)
+            ->whereIn('target_mingguan_id', $targetMingguanList->pluck('id'))
+            ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->latest()
+            ->first();
 
         if ($targetMingguanList->isEmpty()) {
             $existingManual = WeeklyCommitment::where('user_id', $user->id)

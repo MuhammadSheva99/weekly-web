@@ -12,13 +12,15 @@
 
     <div class="bg-amber-50 rounded-2xl p-6 mb-8">
         <p class="text-sm text-gray-500">Target minggu ini</p>
-        <p class="font-bold text-gray-900 mt-1">{{ number_format($commitment->target, 0, ',', '.') }}</p>
-        <p class="text-sm text-gray-600 mt-1">Actual sementara (Rabu): {{ number_format($commitment->weeklyProgress->actual_sementara, 0, ',', '.') }}</p>
+        <p class="font-bold text-gray-900 mt-1">{{ number_format($commitment->target ?? 0, 0, ',', '.') }}</p>
+        <p class="text-sm text-gray-600 mt-1">
+            Actual sementara (Rabu): {{ number_format($commitment->weeklyProgress->actual_sementara ?? 0, 0, ',', '.') }}
+        </p>
     </div>
 
     <form method="POST" action="{{ route('karyawan.self-review.store') }}">
         @csrf
-        <input type="hidden" name="weekly_commitment_id" value="{{ $commitment->id }}">
+        <input type="hidden" name="weekly_commitment_id" value="{{ $commitment->id ?? 1 }}">
 
         <label class="block text-sm text-gray-700 font-semibold mb-2">Actual (final)</label>
         <input type="number" step="0.01" name="actual" required value="{{ old('actual') }}"
@@ -45,3 +47,5 @@
         </button>
     </form>
 @endsection
+
+@include('components.ai-chat-modal', ['commitmentId' => $commitment->id ?? 1])

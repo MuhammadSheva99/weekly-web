@@ -9,10 +9,11 @@ class KpiAchievement
      * - KPI fleksibel: target mengikuti realisasi. Maximize: 100% kalau ada realisasi.
      *   Minimize: selalu 100%.
      * - KPI biasa: aktual / target * 100 (0 kalau target 0).
+     * - Komitmen tanpa target mingguan/KPI (komitmen manual) dihitung sebagai KPI biasa.
      */
     public static function hitung($commitment, $actual): float
     {
-        $kpi = $commitment->targetMingguan->targetBulanan->kpi;
+        $kpi = $commitment->targetMingguan?->targetBulanan?->kpi;
 
         if ($kpi && $kpi->target_fleksibel) {
             // Minimize: target mengikuti realisasi, jadi selalu 100% (0 pelanggaran = bagus).

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Karyawan;
 use App\Http\Controllers\Controller;
 use App\Models\WeeklyCommitment;
 use App\Models\WeeklyProgress;
+use App\Support\KpiAchievement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WeeklyProgressController extends Controller
 {
@@ -32,9 +34,12 @@ class WeeklyProgressController extends Controller
             return view('karyawan.weekly-progress.no-commitment');
         }
 
-        $sudahProgress = $commitments->first()->weeklyProgress;
+        // Mode edit hanya kalau SEMUA KPI di batch ini sudah punya progress.
+        // Kalau belum lengkap (mis. simpan sebelumnya gagal di tengah), tampilkan
+        // form input lagi; store() akan melengkapi yang kurang tanpa membuat data ganda.
+        $semuaSudahProgress = $commitments->every(fn ($c) => $c->weeklyProgress);
 
-        if ($sudahProgress) {
+        if ($semuaSudahProgress) {
             return view('karyawan.weekly-progress.edit-multi', ['commitments' => $commitments]);
         }
 
@@ -54,22 +59,28 @@ class WeeklyProgressController extends Controller
             'action_plan' => 'nullable|string',
         ]);
 
-        foreach ($data['weekly_commitment_ids'] as $commitmentId) {
-            $commitment = WeeklyCommitment::findOrFail($commitmentId);
-            $actualValue = $data['actual'][$commitmentId] ?? 0;
-            $achievement = \App\Support\KpiAchievement::hitung($commitment, $actualValue);
+        // Transaksi: semua KPI tersimpan, atau tidak sama sekali.
+        DB::transaction(function () use ($data) {
+            foreach ($data['weekly_commitment_ids'] as $commitmentId) {
+                $commitment = WeeklyCommitment::where('user_id', Auth::id())->findOrFail($commitmentId);
+                $actualValue = $data['actual'][$commitmentId] ?? 0;
+                $achievement = KpiAchievement::hitung($commitment, $actualValue);
 
-            WeeklyProgress::create([
-                'weekly_commitment_id' => $commitment->id,
-                'actual_sementara' => $actualValue,
-                'achievement_pct' => round($achievement, 2),
-                'problem' => $data['problem'] ?? null,
-                'analysis' => $data['analysis'] ?? null,
-                'solution' => $data['solution'] ?? null,
-                'action_plan' => $data['action_plan'] ?? null,
-                'submitted_at' => now(),
-            ]);
-        }
+                // updateOrCreate: aman kalau form dikirim ulang / sebagian sudah ada.
+                WeeklyProgress::updateOrCreate(
+                    ['weekly_commitment_id' => $commitment->id],
+                    [
+                        'actual_sementara' => $actualValue,
+                        'achievement_pct' => round($achievement, 2),
+                        'problem' => $data['problem'] ?? null,
+                        'analysis' => $data['analysis'] ?? null,
+                        'solution' => $data['solution'] ?? null,
+                        'action_plan' => $data['action_plan'] ?? null,
+                        'submitted_at' => now(),
+                    ]
+                );
+            }
+        });
 
         return redirect()->route('karyawan.dashboard')->with('status', 'Weekly Progress berhasil disimpan.');
     }
@@ -87,21 +98,23 @@ class WeeklyProgressController extends Controller
             'action_plan' => 'nullable|string',
         ]);
 
-        foreach ($data['weekly_progress_ids'] as $progressId) {
-            $progress = WeeklyProgress::findOrFail($progressId);
-            $commitment = $progress->weeklyCommitment;
-            $actualValue = $data['actual'][$progressId] ?? 0;
-            $achievement = \App\Support\KpiAchievement::hitung($commitment, $actualValue);
+        DB::transaction(function () use ($data) {
+            foreach ($data['weekly_progress_ids'] as $progressId) {
+                $progress = WeeklyProgress::findOrFail($progressId);
+                $commitment = $progress->weeklyCommitment;
+                $actualValue = $data['actual'][$progressId] ?? 0;
+                $achievement = KpiAchievement::hitung($commitment, $actualValue);
 
-            $progress->update([
-                'actual_sementara' => $actualValue,
-                'achievement_pct' => round($achievement, 2),
-                'problem' => $data['problem'] ?? null,
-                'analysis' => $data['analysis'] ?? null,
-                'solution' => $data['solution'] ?? null,
-                'action_plan' => $data['action_plan'] ?? null,
-            ]);
-        }
+                $progress->update([
+                    'actual_sementara' => $actualValue,
+                    'achievement_pct' => round($achievement, 2),
+                    'problem' => $data['problem'] ?? null,
+                    'analysis' => $data['analysis'] ?? null,
+                    'solution' => $data['solution'] ?? null,
+                    'action_plan' => $data['action_plan'] ?? null,
+                ]);
+            }
+        });
 
         return redirect()->route('karyawan.weekly-progress.create')->with('status', 'Weekly Progress berhasil diperbarui.');
     }
