@@ -43,6 +43,8 @@ use App\Http\Controllers\Management\KaryawanController;
 use App\Http\Controllers\Management\MonitoringKaryawanController;
 use App\Http\Controllers\Management\MonitoringDivisiController;
 use App\Http\Controllers\Management\KpiKaryawanController as ManagementKpiKaryawanController;
+// TAMBAHAN: Import Controller History Weekly Management
+use App\Http\Controllers\Management\HistoryWeeklyController as ManagementHistoryWeeklyController;
 
 
 
@@ -315,9 +317,20 @@ Route::middleware(['auth', 'role:Management'])->prefix('management')->name('mana
         Route::get('/', [ManagementIzinKaryawanController::class, 'index'])->name('index');
     });
 
+    // --- BAGIAN INI YANG DI-UPDATE UNTUK MENDUKUNG 3 TAB SP KARYAWAN ---
     Route::prefix('sp-karyawan')->name('sp-karyawan.')->group(function () {
-        Route::get('/', [ManagementSuratPeringatanController::class, 'index'])->name('index');
+        Route::get('/', [ManagementSuratPeringatanController::class, 'terbitkanForm'])->name('index');
+        Route::get('/terbitkan', [ManagementSuratPeringatanController::class, 'terbitkanForm'])->name('terbitkan');
+        Route::post('/terbitkan', [ManagementSuratPeringatanController::class, 'store'])->name('store');
+        Route::get('/riwayat', [ManagementSuratPeringatanController::class, 'riwayat'])->name('riwayat');
+        Route::get('/rekomendasi', [ManagementSuratPeringatanController::class, 'rekomendasi'])->name('rekomendasi');
     });
+    // -----------------------------------------------------------------
+
+    // --- TAMBAHAN: RUTE HISTORY WEEKLY MANAGEMENT ---
+    Route::get('/history-weekly', [ManagementHistoryWeeklyController::class, 'index'])->name('history-weekly.index');
+    Route::get('/history-weekly/{user}/{batch}', [ManagementHistoryWeeklyController::class, 'show'])->name('history-weekly.show');
+    // -----------------------------------------------
 
     Route::get('/karyawan', [KaryawanController::class, 'index'])->name('management.karyawan.index');
 

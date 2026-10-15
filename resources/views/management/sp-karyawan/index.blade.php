@@ -3,78 +3,107 @@
 @section('title', 'SP Karyawan')
 
 @section('content')
-    <h1 class="text-3xl font-bold text-gray-900">Surat Peringatan Karyawan</h1>
-    <p class="text-gray-500 mt-1 mb-6">Riwayat Surat Peringatan yang diterbitkan</p>
+<div class="space-y-6">
+    <!-- Tab Navigasi Atas -->
+    @include('management.sp-karyawan._tabs')
 
-    <form method="GET" class="flex flex-wrap items-end gap-4 mb-6">
-        <div>
-            <label class="block text-xs text-gray-500 mb-1">Divisi</label>
-            <select name="divisi_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="this.form.submit()">
-                <option value="">Semua Divisi</option>
-                @foreach ($divisiList as $d)
-                    <option value="{{ $d->id }}" @selected(request('divisi_id') == $d->id)>{{ $d->nama }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div>
-            <label class="block text-xs text-gray-500 mb-1">Status</label>
-            <select name="status" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="this.form.submit()">
-                <option value="">Semua Status</option>
-                <option value="aktif" @selected(request('status') === 'aktif')>Aktif</option>
-                <option value="berakhir" @selected(request('status') === 'berakhir')>Berakhir</option>
-            </select>
-        </div>
-    </form>
-
-    <div class="space-y-4">
-        @forelse ($daftar as $sp)
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 flex items-center gap-6">
-                <div class="flex items-center gap-3 w-40 shrink-0">
-                    <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold">
-                        {{ strtoupper(substr($sp->user->nama, 0, 2)) }}
-                    </div>
-                    <div>
-                        <p class="font-semibold text-gray-900">{{ $sp->user->nama }}</p>
-                        <p class="text-xs text-gray-400">{{ $sp->user->divisi->nama ?? '-' }}</p>
-                    </div>
-                </div>
-
-                <div class="flex-1 grid grid-cols-5 gap-4 text-sm">
-                    <div>
-                        <p class="text-xs text-gray-400">No. SP</p>
-                        <p class="font-medium text-gray-800">{{ $sp->no_sp }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-400">Level</p>
-                        <p class="font-medium text-gray-800">{{ $sp->level }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-400">Tanggal Terbit</p>
-                        <p class="font-medium text-gray-800">{{ $sp->tanggal_terbit->format('d/m/Y') }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-400">Berlaku Sampai</p>
-                        <p class="font-medium text-gray-800">{{ $sp->tanggal_berakhir->format('d/m/Y') }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-400">Diterbitkan Oleh</p>
-                        <p class="font-medium text-gray-800">{{ $sp->diterbitkanOleh->nama ?? '-' }}</p>
-                    </div>
-                </div>
-
-                <div class="w-28 shrink-0 text-sm">
-                    <p class="text-xs text-gray-400">Status</p>
-                    @if ($sp->isAktif())
-                        <p class="font-medium text-amber-600">Aktif</p>
-                    @else
-                        <p class="font-medium text-gray-500">Berakhir</p>
-                    @endif
-                </div>
+    <!-- Filter Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <form method="GET" action="{{ route('management.sp-karyawan.riwayat') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            
+            <!-- Filter Divisi -->
+            <div>
+                <label for="divisi_id" class="block text-sm font-medium text-gray-700 mb-1">Divisi</label>
+                <select name="divisi_id" id="divisi_id" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-sm">
+                    <option value="">Semua Divisi</option>
+                    @foreach($divisiList as $divisi)
+                        <option value="{{ $divisi->id }}" {{ request('divisi_id') == $divisi->id ? 'selected' : '' }}>
+                            {{ $divisi->nama }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
-        @empty
-            <div class="bg-white border border-gray-200 rounded-2xl p-10 text-center text-gray-400">
-                Belum ada Surat Peringatan yang diterbitkan.
+
+            <!-- Filter Status -->
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status SP</label>
+                <select name="status" id="status" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-sm">
+                    <option value="">Semua Status</option>
+                    <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                    <option value="nonaktif" {{ request('status') == 'nonaktif' ? 'selected' : '' }}>Berakhir / Non-Aktif</option>
+                </select>
             </div>
-        @endforelse
+
+            <!-- Button Action -->
+            <div class="flex space-x-2">
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 shadow-sm transition">
+                    Filter
+                </button>
+                <a href="{{ route('management.sp-karyawan.riwayat') }}" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
+                    Reset
+                </a>
+            </div>
+        </form>
     </div>
+
+    <!-- Table Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No SP</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Karyawan</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Divisi</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tingkat</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal Terbit</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Berakhir</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">File Dokumen</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($daftar as $sp)
+                        <tr class="hover:bg-gray-50/50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ $sp->no_sp ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $sp->user->nama ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                {{ $sp->user->divisi->nama ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    SP {{ $sp->tingkat }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                {{ $sp->tanggal_terbit ? \Carbon\Carbon::parse($sp->tanggal_terbit)->format('d M Y') : '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                {{ $sp->tanggal_berakhir ? \Carbon\Carbon::parse($sp->tanggal_berakhir)->format('d M Y') : '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @if($sp->file_path)
+                                    <a href="{{ asset('storage/' . $sp->file_path) }}" target="_blank" class="text-green-600 hover:text-green-900 font-medium underline">
+                                        Lihat PDF
+                                    </a>
+                                @else
+                                    <span class="text-gray-400">Tidak ada</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500">
+                                Belum ada data Surat Peringatan karyawan.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 @endsection

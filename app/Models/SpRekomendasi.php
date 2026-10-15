@@ -27,6 +27,12 @@ class SpRekomendasi extends Model
         return $this->belongsTo(User::class, 'direkomendasikan_oleh');
     }
 
+    // Tambahkan method pengaju() yang mereferensikan kolom direkomendasikan_oleh
+    public function pengaju(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'direkomendasikan_oleh');
+    }
+
     public function diprosesOleh(): BelongsTo
     {
         return $this->belongsTo(User::class, 'diproses_oleh');

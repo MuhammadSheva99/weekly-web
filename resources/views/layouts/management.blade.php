@@ -19,17 +19,19 @@
                 @php
                     $menus = [
                         ['label' => 'Dashboard', 'route' => 'management.dashboard'],
+                        ['label' => 'History Weekly', 'route' => 'management.history-weekly.index'],
                         ['label' => 'Trend & Performance', 'route' => 'management.trend.index'],
                         ['label' => 'Monitoring Karyawan', 'route' => 'management.monitoring-karyawan.index'],
                         ['label' => 'Monitoring Divisi', 'route' => 'management.monitoring-divisi.index'],
                         ['label' => 'Cuti Karyawan', 'route' => 'management.cuti-karyawan.index'],
                         ['label' => 'Izin Karyawan', 'route' => 'management.izin-karyawan.index'],
-                        ['label' => 'KPI Karyawan', 'route' => 'management.kpi-karyawan.index'],
+                        ['label' => 'KPI Karyawan', 'route' => 'management.kpi-karyawan.index'], 
+                        ['label' => 'SP Karyawan', 'route' => 'management.sp-karyawan.index'],
                     ];
                 @endphp
 
                 @foreach ($menus as $menu)
-                    @php $active = $menu['route'] && request()->routeIs($menu['route']); @endphp
+                    @php $active = $menu['route'] && (request()->routeIs($menu['route']) || (str_contains($menu['route'], 'history-weekly') && request()->routeIs('management.history-weekly.*'))); @endphp
                     <a href="{{ $menu['route'] ? route($menu['route']) : '#' }}"
                        class="block px-4 py-3 rounded-lg font-medium transition {{ $active ? 'bg-white text-green-700' : 'text-white/90 hover:bg-white/10' }}">
                         {{ $menu['label'] }}
