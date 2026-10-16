@@ -47,4 +47,7 @@
             Update self review
         </button>
     </form>
+
+    {{-- TAMBAHKAN BARIS INI AGAR CHAT AI MUNCUL --}}
+    @include('components.ai-chat-modal', ['commitmentId' => $review->weekly_commitment_id ?? ($commitment->id ?? 1)])
 @endsection

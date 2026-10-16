@@ -55,9 +55,12 @@ class AiChatController extends Controller
                 $name = $user->nama ?? $user->name ?? 'Rekan';
                 $target = $commitment->big_goal ?? $commitment->target ?? 'Target Minggu Ini';
                 $actual = $commitment->weeklyProgress->actual_sementara ?? $commitment->actualMingguan->actual_value ?? 0;
+                
+                // Format angka agar menjadi ribuan yang rapi (misal: 20.000.000) tanpa .0000 di belakang
+                $actualFormatted = number_format((float)$actual, 0, ',', '.');
 
                 $greeting = "Halo " . $name . "!\n\n" .
-                    "Minggu ini targetmu adalah: " . $target . " dengan capaian sementara: " . $actual . ".\n\n" .
+                    "Minggu ini targetmu adalah: " . $target . " dengan capaian sementara: " . $actualFormatted . ".\n\n" .
                     "Bagaimana evaluasi atau perasaanmu minggu ini? Apa kendala terbesar yang kamu hadapi?";
 
                 $chat->messages()->create([
