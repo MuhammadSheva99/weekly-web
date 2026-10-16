@@ -63,7 +63,7 @@ class NotificationService
         $penerima = User::where('id', '!=', $requester->id)
             ->where('id', '!=', $approver->id)
             ->where(function ($q) use ($requester) {
-                $q->whereHas('role', fn ($r) => $r->whereIn('nama', ['Atasan', 'HRD', 'Management']))
+                $q->whereHas('role', fn ($r) => $r->whereIn('nama', ['HRD',]))
                   ->orWhere('divisi_id', $requester->divisi_id);
             })
             ->get();

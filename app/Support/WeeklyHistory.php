@@ -136,3 +136,5 @@ class WeeklyHistory
         return compact('commitments', 'first', 'label', 'prioritas', 'catatan', 'reviewCatatan', 'komentar');
     }
 }
+
+

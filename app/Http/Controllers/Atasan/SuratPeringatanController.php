@@ -75,7 +75,7 @@ class SuratPeringatanController extends Controller
 
         User::whereHas('role', fn ($q) => $q->where('nama', 'HRD'))->get()->each(function ($hrd) use ($anggota, $data) {
             NotificationService::send(
-                $hrd, 'sp_rekomendasi_baru',
+                $hrd, 'sp', // Type diubah dari 'sp_rekomendasi_baru' menjadi 'sp' agar muat di database
                 "Atasan merekomendasikan SP ({$data['level_usulan']}) untuk {$anggota->nama}.",
                 email: true, emailJudul: 'Rekomendasi SP Baru dari Atasan'
             );
